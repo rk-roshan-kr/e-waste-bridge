@@ -1,0 +1,44 @@
+{
+  "name": "E-Waste Bridge - CPCB Traceability & Reverse Marketplace",
+  "short_name": "E-Waste Bridge",
+  "description": "Vernacular, low-literacy, offline-first mobile platform connecting informal e-waste collectors with CPCB-authorized recyclers.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0B0E14",
+  "theme_color": "#0B0E14",
+  "lang": "hi-IN",
+  "categories": ["utilities", "finance", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Sell E-Waste",
+      "short_name": "Sell",
+      "description": "Start camera scanner and voice lot creation",
+      "url": "/?action=sell",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "My Lots",
+      "short_name": "Lots",
+      "description": "View active lots, receipts, and earnings",
+      "url": "/?action=lots",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ]
+}

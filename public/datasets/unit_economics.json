@@ -1,0 +1,61 @@
+{
+  "informalVsPlatformTable": [
+    {
+      "stream": "Laptop Scrap (10 kg)",
+      "informalRate": 140,
+      "informalPayout": 1400,
+      "platformRate": 210,
+      "platformPayout": 2100,
+      "netGain": 700,
+      "gainPercent": "+50.0%"
+    },
+    {
+      "stream": "Motherboards / PCBs (5 kg)",
+      "informalRate": 220,
+      "informalPayout": 1100,
+      "platformRate": 350,
+      "platformPayout": 1750,
+      "netGain": 650,
+      "gainPercent": "+59.1%"
+    },
+    {
+      "stream": "Copper Wires (15 kg)",
+      "informalRate": 125,
+      "informalPayout": 1875,
+      "platformRate": 180,
+      "platformPayout": 2700,
+      "netGain": 825,
+      "gainPercent": "+44.0%"
+    },
+    {
+      "stream": "Li-Ion Batteries (10 kg)",
+      "informalRate": 60,
+      "informalPayout": 600,
+      "platformRate": 95,
+      "platformPayout": 950,
+      "netGain": 350,
+      "gainPercent": "+58.3%"
+    },
+    {
+      "stream": "Motors & Magnets (20 kg)",
+      "informalRate": 75,
+      "informalPayout": 1500,
+      "platformRate": 120,
+      "platformPayout": 2400,
+      "netGain": 900,
+      "gainPercent": "+60.0%"
+    }
+  ],
+  "monthlyTotals": {
+    "informalMonthlyNet": 18450,
+    "platformMonthlyNet": 25980,
+    "monthlyGainInr": 7530,
+    "percentageIncrease": 40.8
+  },
+  "platformSustainabilityModel": {
+    "collectorFee": "₹0.00 (100% Free Forever for Informal Waste-Pickers)",
+    "recyclerFacilitationFee": "1.75% of Settled Intake Value (Paid by CPCB Recycler)",
+    "whyRecyclersPay": "Saves 12-18% broker markup while securing verified CPCB Form-6 EPR compliance credits",
+    "serverlessEdgeOpex": "₹0.00 / month on local edge neural models (no recurring cloud API bills)"
+  }
+}

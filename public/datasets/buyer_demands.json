@@ -1,0 +1,38 @@
+[
+  {
+    "id": "dem-101",
+    "recyclerId": "rec-apex",
+    "recyclerName": "Apex E-Recovery",
+    "materialId": "laptops",
+    "requiredQuantityKg": 500,
+    "fulfilledQuantityKg": 310,
+    "offeredRatePerKg": 215,
+    "pickupRadiusKm": 25,
+    "status": "URGENT",
+    "expiresAt": "2026-09-08T18:00:00Z"
+  },
+  {
+    "id": "dem-102",
+    "recyclerId": "rec-ecobirbal",
+    "recyclerName": "EcoBirbal Metals",
+    "materialId": "pcb",
+    "requiredQuantityKg": 800,
+    "fulfilledQuantityKg": 520,
+    "offeredRatePerKg": 365,
+    "pickupRadiusKm": 40,
+    "status": "URGENT",
+    "expiresAt": "2026-09-09T18:00:00Z"
+  },
+  {
+    "id": "dem-103",
+    "recyclerId": "rec-safebat",
+    "recyclerName": "SafeCell Battery",
+    "materialId": "batteries",
+    "requiredQuantityKg": 1200,
+    "fulfilledQuantityKg": 780,
+    "offeredRatePerKg": 102,
+    "pickupRadiusKm": 50,
+    "status": "OPEN",
+    "expiresAt": "2026-09-10T18:00:00Z"
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "id": "COL-MUM-8402",
+    "collector_id": "COL-MUM-8402",
+    "name": "Ramesh Pawar",
+    "phone": "+91 98200 48402",
+    "role": "Informal E-Waste Aggregator",
+    "operating_location": "Kurla West Scrap Cluster, Mumbai",
+    "serviceArea": "Kurla West Scrap Cluster, Mumbai",
+    "preferred_language": "hi",
+    "compliance_tier": "Tier 1 Verified (Field Partner)",
+    "total_lots_completed": 29,
+    "totalLotsCompleted": 29,
+    "monthly_weight_kg": 482.5,
+    "monthlyWeightKg": 482.5,
+    "monthly_earnings_inr": 89450,
+    "monthlyEarningsInr": 89450
+  }
+]

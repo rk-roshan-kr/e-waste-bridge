@@ -1,0 +1,286 @@
+[
+  {
+    "material_id": "smartphones",
+    "category": "Telecom & Consumer",
+    "sub_category": "Touchscreen Smartphone Assemblies",
+    "cpcb_code": "ITEW15",
+    "name_en": "Mobile Phones & Smartphones",
+    "name_hi": "मोबाइल फोन और स्मार्टफोन",
+    "name_mr": "मोबाईल फोन आणि स्मार्टफोन्स",
+    "unit": "kg",
+    "base_benchmark_rate": 380,
+    "min_market_rate": 340,
+    "max_market_rate": 420,
+    "hazard_level": "MEDIUM",
+    "hazard_flags": [
+      "Lithium-Ion Battery",
+      "Cobalt Fire Risk"
+    ],
+    "safety_warning_en": "Ensure lithium battery is intact. Do not puncture or expose to flame.",
+    "safety_warning_hi": "लिथियम बैटरी की जांच करें। इसे नुकीली चीजों से दूर रखें।",
+    "safety_warning_mr": "लिथियम बॅटरी सुरक्षित ठेवा. उष्णतेपासून दूर ठेवा.",
+    "critical_raw_materials": [
+      "Cobalt",
+      "Lithium",
+      "Gold",
+      "Copper"
+    ],
+    "visual_cues": [
+      "Glass front screen",
+      "Rear camera module",
+      "USB-C port"
+    ]
+  },
+  {
+    "material_id": "laptops",
+    "category": "IT & Computing",
+    "sub_category": "Portable Notebook PC Units",
+    "cpcb_code": "ITEW2",
+    "name_en": "Laptops & Notebooks",
+    "name_hi": "लैपटॉप और नोटबुक",
+    "name_mr": "लॅपटॉप आणि नोटबुक्स",
+    "unit": "kg",
+    "base_benchmark_rate": 210,
+    "min_market_rate": 190,
+    "max_market_rate": 240,
+    "hazard_level": "MEDIUM",
+    "hazard_flags": [
+      "Built-in Battery",
+      "Mercury/CCFL in older backlights"
+    ],
+    "safety_warning_en": "Keep casing closed. Do not attempt unvented cell extraction.",
+    "safety_warning_hi": "लैपटॉप को बंद रखें। बैटरी को बिना सुरक्षा उपकरण न निकालें।",
+    "safety_warning_mr": "लॅपटॉप बंद ठेवा. बॅटरी हाताने काढण्याचा प्रयत्न करू नका.",
+    "critical_raw_materials": [
+      "Tantalum",
+      "Gold",
+      "Copper",
+      "Lithium"
+    ],
+    "visual_cues": [
+      "Foldable chassis",
+      "Keyboard trackpad",
+      "Display lid"
+    ]
+  },
+  {
+    "material_id": "pcb",
+    "category": "High-Grade Boards",
+    "sub_category": "Server & Computer Motherboards",
+    "cpcb_code": "ITEW23",
+    "name_en": "Printed Circuit Boards (PCBs)",
+    "name_hi": "सर्किट बोर्ड और मदरबोर्ड",
+    "name_mr": "मदरबोर्ड व पीसीबी स्क्रॅप",
+    "unit": "kg",
+    "base_benchmark_rate": 350,
+    "min_market_rate": 310,
+    "max_market_rate": 420,
+    "hazard_level": "HIGH",
+    "hazard_flags": [
+      "Lead Solder",
+      "Brominated Flame Retardants (BFR)",
+      "Acid Leaching Risk"
+    ],
+    "safety_warning_en": "STRICT WARNING: Do not attempt open-pan burning or acid bath extraction. Route directly to authorized CPCB refiners.",
+    "safety_warning_hi": "सख्त चेतावनी: मदरबोर्ड पर तेजाब न डालें और न ही इसे जलाएं। यह फेफड़ों के लिए अत्यंत जहरीला है।",
+    "safety_warning_mr": "कडक इशारा: पीसीबी जाळू नका किंवा ऍसिड वापरू नका. CPCB प्रमाणित रिफायनरकडे पाठवा.",
+    "critical_raw_materials": [
+      "Gold",
+      "Silver",
+      "Palladium",
+      "Copper"
+    ],
+    "visual_cues": [
+      "Green/Blue FR-4 substrate",
+      "Gold connector fingers",
+      "Microchips"
+    ]
+  },
+  {
+    "material_id": "batteries",
+    "category": "Energy Storage",
+    "sub_category": "Li-Ion & Lead Acid Cells",
+    "cpcb_code": "CEEW4",
+    "name_en": "Batteries (Li-Ion & Lead-Acid)",
+    "name_hi": "लिथियम व लेड-एसिड बैटरी",
+    "name_mr": "लिथियम व लेड-अॅसिड बॅटरी",
+    "unit": "kg",
+    "base_benchmark_rate": 95,
+    "min_market_rate": 80,
+    "max_market_rate": 110,
+    "hazard_level": "CRITICAL",
+    "hazard_flags": [
+      "Thermal Runaway Hazard",
+      "Electrolyte Spillage",
+      "Toxic Gas"
+    ],
+    "safety_warning_en": "CRITICAL SAFETY: Store in non-conductive, fire-retardant container. Never puncture terminals.",
+    "safety_warning_hi": "अति-गंभीर सुरक्षा: बैटरी को सूखी जगह पर रखें। शॉर्ट सर्किट या आग से बचाएं।",
+    "safety_warning_mr": "अतिसंवेदनशील: बॅटरी कोरड्या जागेत ठेवा. शॉर्ट सर्किट किंवा आग टाळा.",
+    "critical_raw_materials": [
+      "Lithium",
+      "Cobalt",
+      "Nickel",
+      "Lead"
+    ],
+    "visual_cues": [
+      "Pouch cell",
+      "Cylindrical 18650 cells",
+      "Prismatic packs"
+    ]
+  },
+  {
+    "material_id": "cables",
+    "category": "Ferrous & Non-Ferrous",
+    "sub_category": "Copper Wires & Harnesses",
+    "cpcb_code": "NFM1",
+    "name_en": "Copper Wires & Cables",
+    "name_hi": "तांबे के तार और केबल",
+    "name_mr": "तांब्याची वायर व केबल्स",
+    "unit": "kg",
+    "base_benchmark_rate": 180,
+    "min_market_rate": 165,
+    "max_market_rate": 205,
+    "hazard_level": "LOW",
+    "hazard_flags": [
+      "Dioxin Emission on Open Burning"
+    ],
+    "safety_warning_en": "DO NOT BURN insulation wire in open air (violates CPCB Clean Air norms). Route to mechanical strippers.",
+    "safety_warning_hi": "तारों को खुले में न जलाएं। इसका धुआं कैंसरकारी होता है। छीलने के लिए कटर का उपयोग करें।",
+    "safety_warning_mr": "वायर उघड्यावर जाळू नका. प्लास्टिक जाळल्याने विषारी धूर होतो. कटर वापरा.",
+    "critical_raw_materials": [
+      "Pure Copper (Cu 99%)"
+    ],
+    "visual_cues": [
+      "PVC insulated bundles",
+      "Braided copper wire",
+      "Power cords"
+    ]
+  },
+  {
+    "material_id": "motors_magnets",
+    "category": "Critical Rare Earths",
+    "sub_category": "Motors & Magnet Assemblies (Neodymium)",
+    "cpcb_code": "EEM1",
+    "name_en": "Motors & Magnet Assemblies",
+    "name_hi": "मोटर और नियोडिमियम चुंबक",
+    "name_mr": "मोटार व मॅग्नेट असेंब्ली (नियोडिमियम)",
+    "unit": "kg",
+    "base_benchmark_rate": 120,
+    "min_market_rate": 105,
+    "max_market_rate": 140,
+    "hazard_level": "MEDIUM",
+    "hazard_flags": [
+      "Pinch Hazard from Powerful Magnets",
+      "Fine Metal Dust"
+    ],
+    "safety_warning_en": "High magnetic strength: keep separated from watches and pacemakers. Do not grind dry.",
+    "safety_warning_hi": "मजबूत चुंबक: घड़ियों और इलेक्ट्रॉनिक उपकरणों से दूर रखें। सूखा न पीसें।",
+    "safety_warning_mr": "शक्तिशाली चुंबक: घड्याळांपासून दूर ठेवा. कोरडे कापू नका.",
+    "critical_raw_materials": [
+      "Neodymium (Nd)",
+      "Dysprosium (Dy)",
+      "Copper",
+      "Silicon Steel"
+    ],
+    "visual_cues": [
+      "Hard drive magnets",
+      "Fan/compressor stator coils",
+      "Heavy metal rotor"
+    ]
+  },
+  {
+    "material_id": "crt",
+    "category": "Displays & Monitors",
+    "sub_category": "Cathode Ray Picture Tubes",
+    "cpcb_code": "ITEW11",
+    "name_en": "CRT Displays & Glass Tubes",
+    "name_hi": "सीआरटी मॉनिटर और पिक्चर ट्यूब",
+    "name_mr": "सीआरटी मॉनिटर व काच ट्यूब",
+    "unit": "kg",
+    "base_benchmark_rate": 45,
+    "min_market_rate": 35,
+    "max_market_rate": 55,
+    "hazard_level": "HIGH",
+    "hazard_flags": [
+      "Leaded Funnel Glass (~2kg lead per tube)",
+      "Vacuum Implosion"
+    ],
+    "safety_warning_en": "HANDLE WITH GLOVES: Avoid striking neck of tube. High risk of lead dust inhalation if broken.",
+    "safety_warning_hi": "दस्ताने पहनकर उठाएं: ट्यूब की गर्दन पर चोट न लगाएं। टूटने पर जहरीला सीसा निकलता है।",
+    "safety_warning_mr": "हातमोजे वापरा: ट्यूब फुटल्यास विषारी शिसे हवेत पसरते. स्क्रीन फुटू देऊ नका.",
+    "critical_raw_materials": [
+      "Lead",
+      "Phosphor",
+      "Barium Glass"
+    ],
+    "visual_cues": [
+      "Heavy funnel glass",
+      "Electron gun neck",
+      "Curved glass face"
+    ]
+  },
+  {
+    "material_id": "abs_plastic",
+    "category": "Mixed Plastics & Polymers",
+    "sub_category": "Mixed Engineering Plastics & Appliance Shells",
+    "cpcb_code": "POL1",
+    "name_en": "Mixed Plastics & ABS Casings",
+    "name_hi": "मिश्रित प्लास्टिक और उपकरण केसिंग (Mixed Plastics)",
+    "name_mr": "मिश्रित प्लॅस्टिक व कॅबिनेट (Mixed Plastics)",
+    "unit": "kg",
+    "base_benchmark_rate": 30,
+    "min_market_rate": 26,
+    "max_market_rate": 34,
+    "hazard_level": "LOW",
+    "hazard_flags": [
+      "Flame Retardants (BFR in older chassis)"
+    ],
+    "safety_warning_en": "Keep dry and separated from PVC plastics. Avoid open burning.",
+    "safety_warning_hi": "प्लास्टिक को सूखा रखें। इसे न जलाएं।",
+    "safety_warning_mr": "प्लॅस्टिक कोरडे ठेवा. जाळणे टाळा.",
+    "critical_raw_materials": [
+      "High-Impact Polystyrene (HIPS)",
+      "ABS Polyblend"
+    ],
+    "visual_cues": [
+      "Matte black/grey textured shell",
+      "Flame retardant markings",
+      "Snap clips"
+    ]
+  },
+  {
+    "material_id": "lcd_panels",
+    "category": "Displays & Monitors",
+    "sub_category": "Liquid Crystal Display & LED Flat Panels",
+    "cpcb_code": "ITEW12",
+    "name_en": "LCD & LED Display Panels",
+    "name_hi": "एलसीडी और एलईडी डिस्प्ले स्क्रीन",
+    "name_mr": "एलसीडी व एलईडी डिस्प्ले स्क्रीन्स",
+    "unit": "kg",
+    "base_benchmark_rate": 65,
+    "min_market_rate": 55,
+    "max_market_rate": 78,
+    "hazard_level": "HIGH",
+    "hazard_flags": [
+      "Mercury Vapor in CCFL Backlights",
+      "Indium Tin Oxide (ITO)",
+      "Liquid Crystal Fluorinated Compounds"
+    ],
+    "safety_warning_en": "DO NOT CRUSH DISPLAY GLASS. Ruptured CCFL cold-cathode lamps release toxic elemental mercury vapor. Keep panels flat and wear cut-resistant gloves.",
+    "safety_warning_hi": "डिस्प्ले स्क्रीन को न तोड़ें। पुरानी ट्यूब टूटने पर जहरीला पारा (मर्करी) गैस निकलती है। स्क्रीन को समतल रखें।",
+    "safety_warning_mr": "डिस्प्ले काच फोडू नका. जुन्या सीसीएफएल बॅकलाइटमधून विषारी पारा वायू बाहेर पडतो. फ्लॅट स्थितीत सुरक्षित ठेवा.",
+    "critical_raw_materials": [
+      "Indium (In)",
+      "Tin (Sn)",
+      "Gallium (Ga)",
+      "Optical Glass"
+    ],
+    "visual_cues": [
+      "Flat thin glass sandwich",
+      "LVDS ribbon cable",
+      "Polarizer optical film",
+      "Edge-lit backlight frame"
+    ]
+  }
+]

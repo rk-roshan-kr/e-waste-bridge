@@ -1,0 +1,10 @@
+benchmark_id,material_id,region_code,region_name,prevailing_buying_rate,min_rate,max_rate,unit,price_trend,trend_percentage,freshness_score,sample_transaction_count,source_index
+"bm-smartphones-mmr","smartphones","MH-MMR","Mumbai Metropolitan Region","380","340","420","kg","UP_MODERATE","4.2","0.98","142","Aggregated CPCB Recycler Intake Index"
+"bm-laptops-mmr","laptops","MH-MMR","Mumbai Metropolitan Region","210","190","240","kg","STABLE","0.5","0.95","98","Authorized Refurbisher & Smelter Log"
+"bm-pcb-mmr","pcb","MH-MMR","Mumbai Metropolitan Region","350","310","420","kg","UP_STRONG","8.5","0.99","215","Precious Metals Recovery Index (LME Indexed)"
+"bm-batteries-mmr","batteries","MH-MMR","Mumbai Metropolitan Region","95","80","110","kg","STABLE","-0.2","0.92","64","Authorized Battery Recycler Portal"
+"bm-cables-mmr","cables","MH-MMR","Mumbai Metropolitan Region","180","165","205","kg","UP_MODERATE","2.4","0.96","180","Secondary Copper Smelter Rate Sheet"
+"bm-motors-mmr","motors_magnets","MH-MMR","Mumbai Metropolitan Region","120","105","140","kg","UP_STRONG","6.8","0.94","52","Rare Earth Magnet Extraction Consortium"
+"bm-crt-mmr","crt","MH-MMR","Mumbai Metropolitan Region","45","35","55","kg","DOWN_MODERATE","-3","0.88","38","Leaded Glass Smelting Partner Bulletin"
+"bm-plastic-mmr","abs_plastic","MH-MMR","Mumbai Metropolitan Region","30","26","34","kg","UP_MODERATE","5.1","0.94","76","Polymer Pelletizer & Extruder Daily Sheet"
+"bm-lcd-mmr","lcd_panels","MH-MMR","Mumbai Metropolitan Region","65","55","78","kg","UP_MODERATE","3.8","0.96","54","Indium Recovery & Display Dismantling Index"

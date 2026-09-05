@@ -1,0 +1,114 @@
+[
+  {
+    "recycler_id": "rec-apex",
+    "name": "Apex E-Recovery Ltd.",
+    "badge": "CPCB Authorized • Grade A",
+    "cpcb_registration_no": "CPCB/EPR-REC/2023/MH-0149",
+    "registration_valid_till": "2028-03-31",
+    "status": "VERIFIED_ACTIVE",
+    "facility_location": "Turbhe MIDC, Navi Mumbai",
+    "latitude": 19.0825,
+    "longitude": 73.0182,
+    "contact_phone": "+91 98201 12345",
+    "rating": 4.9,
+    "intake_capacity_kg_day": 4000,
+    "current_intake_kg": 2150,
+    "pickup_capability": true,
+    "pickup_vehicle_type": "Tata Ace EV (1.2T)",
+    "pickup_radius_km": 25,
+    "accepted_materials": [
+      "smartphones",
+      "laptops",
+      "pcb",
+      "cables",
+      "motors_magnets"
+    ],
+    "settlement_modes": [
+      "CASH_IMMEDIATE",
+      "UPI_INSTANT"
+    ]
+  },
+  {
+    "recycler_id": "rec-ecobirbal",
+    "name": "EcoBirbal Circular Metals",
+    "badge": "CPCB Authorized • R-Refiner",
+    "cpcb_registration_no": "CPCB/EPR-REC/2022/MH-0082",
+    "registration_valid_till": "2027-12-31",
+    "status": "VERIFIED_ACTIVE",
+    "facility_location": "Bhiwandi Logistics Hub, Thane",
+    "latitude": 19.2812,
+    "longitude": 73.0483,
+    "contact_phone": "+91 98922 67890",
+    "rating": 4.8,
+    "intake_capacity_kg_day": 8000,
+    "current_intake_kg": 5200,
+    "pickup_capability": true,
+    "pickup_vehicle_type": "Eicher Pro 2049 (2.5T)",
+    "pickup_radius_km": 40,
+    "accepted_materials": [
+      "pcb",
+      "laptops",
+      "smartphones",
+      "batteries",
+      "motors_magnets"
+    ],
+    "settlement_modes": [
+      "CASH_IMMEDIATE",
+      "UPI_INSTANT"
+    ]
+  },
+  {
+    "recycler_id": "rec-maha-green",
+    "name": "MahaGreen Dismantlers",
+    "badge": "MPCB & CPCB Registered",
+    "cpcb_registration_no": "CPCB/EPR-REC/2024/MH-0311",
+    "registration_valid_till": "2029-06-30",
+    "status": "VERIFIED_ACTIVE",
+    "facility_location": "Kurla Industrial Estate, Mumbai",
+    "latitude": 19.0657,
+    "longitude": 72.8794,
+    "contact_phone": "+91 97690 11223",
+    "rating": 4.7,
+    "intake_capacity_kg_day": 2000,
+    "current_intake_kg": 1100,
+    "pickup_capability": true,
+    "pickup_vehicle_type": "Electric Cargo 3-Wheeler",
+    "pickup_radius_km": 15,
+    "accepted_materials": [
+      "smartphones",
+      "laptops",
+      "cables",
+      "crt",
+      "abs_plastic"
+    ],
+    "settlement_modes": [
+      "CASH_IMMEDIATE",
+      "UPI_INSTANT"
+    ]
+  },
+  {
+    "recycler_id": "rec-safebat",
+    "name": "SafeCell Battery Solutions",
+    "badge": "CPCB Hazardous Waste Recycler",
+    "cpcb_registration_no": "CPCB/HAZ-BAT/2023/MH-0044",
+    "registration_valid_till": "2027-09-30",
+    "status": "VERIFIED_ACTIVE",
+    "facility_location": "Taloja Chemical Zone, Navi Mumbai",
+    "latitude": 19.0254,
+    "longitude": 73.1121,
+    "contact_phone": "+91 98334 55667",
+    "rating": 4.9,
+    "intake_capacity_kg_day": 5000,
+    "current_intake_kg": 3400,
+    "pickup_capability": true,
+    "pickup_vehicle_type": "Hazmat Certified Container EV",
+    "pickup_radius_km": 50,
+    "accepted_materials": [
+      "batteries"
+    ],
+    "settlement_modes": [
+      "CASH_IMMEDIATE",
+      "UPI_INSTANT"
+    ]
+  }
+]

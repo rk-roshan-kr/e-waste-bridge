@@ -1,0 +1,44 @@
+[
+  {
+    "id": "case-01",
+    "collectorName": "Ramu Pawar",
+    "age": 42,
+    "cluster": "Kurla West Scrap Market / Dharavi Periphery, Mumbai",
+    "experienceYears": 18,
+    "dailyCollectionKg": "15 - 25 kg mixed electronics & copper wiring",
+    "baselineMonthlyIncome": 17500,
+    "platformProjectedIncome": 24800,
+    "incomeGainPercent": 41.7,
+    "keyQuotes": {
+      "hi": "पहले हम तार जलाकर तांबा निकालते थे क्योंकि कबाड़ी प्लास्टिक का पैसा काट लेता था। ऐप पर बिना जलाए पूरा दाम मिला और पुलिस की कोई परेशानी नहीं हुई।",
+      "mr": "आधी वायर जाळून तांबे काढत होतो. आता ऍपवर भाव समजल्यामुळे आणि कपातीशिवाय रोख पैसे मिळाल्यामुळे काम सोपे झाले."
+    },
+    "criticalFindings": [
+      "Informal middlemen were taking a 35-40% cut on market benchmark rates.",
+      "Backyard wire burning caused severe respiratory symptoms and soot fines.",
+      "Zero digital literacy: cannot type in English; voice mode in Marathi/Hindi is an absolute prerequisite.",
+      "Requires immediate spot cash on handover to pay for daily food expenses."
+    ]
+  },
+  {
+    "id": "case-02",
+    "collectorName": "Santosh Shinde",
+    "age": 38,
+    "cluster": "Hadapsar Aggregator Godown, Pune",
+    "experienceYears": 11,
+    "dailyCollectionKg": "800 - 1200 kg monthly aggregator volume",
+    "baselineMonthlyIncome": 36000,
+    "platformProjectedIncome": 51200,
+    "incomeGainPercent": 42.2,
+    "keyQuotes": {
+      "hi": "हमारे पास 14 लड़के कचरा लाते हैं। CPCB नियमों का डर था कि दुकान सील न हो जाए। अब सीधे अधिकृत रीसायकलर्स से पक्की रसीद मिलती है।",
+      "mr": "आमच्याकडे १४ मुले माल आणतात. थेट फॅक्टरीशी संपर्क झाल्यामुळे भाव वाढला आणि जीएसटी/फॉर्म-६ पावतीमुळे अधिकृत व्यवसाय सुरू झाला."
+    },
+    "criticalFindings": [
+      "Aggregates from 14 street waste-pickers; operates as critical first-tier hub.",
+      "Feared formalization due to complex paperwork and tax harassment.",
+      "Platform Form-6 QR manifest provided legal protection against local police extortion.",
+      "Certified weighbridge integration eliminated gross/tare weight disputes."
+    ]
+  }
+]

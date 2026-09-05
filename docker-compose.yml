@@ -1,0 +1,36 @@
+# ==============================================================================
+# E-Waste Bridge - Docker Compose Deployment Specification
+# SIH 2026 Problem Statement 2 (E-Waste Management & Formalization)
+# ==============================================================================
+
+services:
+  ewaste-bridge-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ewaste-bridge:latest
+    container_name: ewaste-bridge-app
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

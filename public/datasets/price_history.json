@@ -1,0 +1,254 @@
+[
+  {
+    "history_id": "hist-lcd-1",
+    "material_id": "lcd_panels",
+    "recorded_date": "2026-08-30",
+    "average_rate": 61,
+    "high_rate": 72,
+    "low_rate": 52,
+    "volume_traded_kg": 280
+  },
+  {
+    "history_id": "hist-lcd-2",
+    "material_id": "lcd_panels",
+    "recorded_date": "2026-08-31",
+    "average_rate": 62,
+    "high_rate": 74,
+    "low_rate": 54,
+    "volume_traded_kg": 310
+  },
+  {
+    "history_id": "hist-lcd-3",
+    "material_id": "lcd_panels",
+    "recorded_date": "2026-09-01",
+    "average_rate": 63,
+    "high_rate": 75,
+    "low_rate": 54,
+    "volume_traded_kg": 350
+  },
+  {
+    "history_id": "hist-lcd-4",
+    "material_id": "lcd_panels",
+    "recorded_date": "2026-09-02",
+    "average_rate": 64,
+    "high_rate": 76,
+    "low_rate": 55,
+    "volume_traded_kg": 320
+  },
+  {
+    "history_id": "hist-lcd-5",
+    "material_id": "lcd_panels",
+    "recorded_date": "2026-09-03",
+    "average_rate": 65,
+    "high_rate": 78,
+    "low_rate": 55,
+    "volume_traded_kg": 410
+  },
+  {
+    "history_id": "hist-lcd-6",
+    "material_id": "lcd_panels",
+    "recorded_date": "2026-09-04",
+    "average_rate": 65,
+    "high_rate": 78,
+    "low_rate": 55,
+    "volume_traded_kg": 440
+  },
+  {
+    "history_id": "hist-lcd-7",
+    "material_id": "lcd_panels",
+    "recorded_date": "2026-09-05",
+    "average_rate": 65,
+    "high_rate": 78,
+    "low_rate": 55,
+    "volume_traded_kg": 420
+  },
+  {
+    "history_id": "hist-cab-1",
+    "material_id": "cables",
+    "recorded_date": "2026-08-30",
+    "average_rate": 174,
+    "high_rate": 195,
+    "low_rate": 160,
+    "volume_traded_kg": 840
+  },
+  {
+    "history_id": "hist-cab-2",
+    "material_id": "cables",
+    "recorded_date": "2026-08-31",
+    "average_rate": 175,
+    "high_rate": 198,
+    "low_rate": 162,
+    "volume_traded_kg": 920
+  },
+  {
+    "history_id": "hist-cab-3",
+    "material_id": "cables",
+    "recorded_date": "2026-09-01",
+    "average_rate": 176,
+    "high_rate": 200,
+    "low_rate": 164,
+    "volume_traded_kg": 1100
+  },
+  {
+    "history_id": "hist-cab-4",
+    "material_id": "cables",
+    "recorded_date": "2026-09-02",
+    "average_rate": 178,
+    "high_rate": 202,
+    "low_rate": 165,
+    "volume_traded_kg": 950
+  },
+  {
+    "history_id": "hist-cab-5",
+    "material_id": "cables",
+    "recorded_date": "2026-09-03",
+    "average_rate": 179,
+    "high_rate": 204,
+    "low_rate": 165,
+    "volume_traded_kg": 1250
+  },
+  {
+    "history_id": "hist-cab-6",
+    "material_id": "cables",
+    "recorded_date": "2026-09-04",
+    "average_rate": 180,
+    "high_rate": 205,
+    "low_rate": 165,
+    "volume_traded_kg": 1400
+  },
+  {
+    "history_id": "hist-cab-7",
+    "material_id": "cables",
+    "recorded_date": "2026-09-05",
+    "average_rate": 180,
+    "high_rate": 205,
+    "low_rate": 165,
+    "volume_traded_kg": 1320
+  },
+  {
+    "history_id": "hist-pcb-1",
+    "material_id": "pcb",
+    "recorded_date": "2026-08-30",
+    "average_rate": 320,
+    "high_rate": 380,
+    "low_rate": 290,
+    "volume_traded_kg": 420
+  },
+  {
+    "history_id": "hist-pcb-2",
+    "material_id": "pcb",
+    "recorded_date": "2026-08-31",
+    "average_rate": 325,
+    "high_rate": 390,
+    "low_rate": 300,
+    "volume_traded_kg": 480
+  },
+  {
+    "history_id": "hist-pcb-3",
+    "material_id": "pcb",
+    "recorded_date": "2026-09-01",
+    "average_rate": 330,
+    "high_rate": 400,
+    "low_rate": 305,
+    "volume_traded_kg": 560
+  },
+  {
+    "history_id": "hist-pcb-4",
+    "material_id": "pcb",
+    "recorded_date": "2026-09-02",
+    "average_rate": 338,
+    "high_rate": 410,
+    "low_rate": 310,
+    "volume_traded_kg": 610
+  },
+  {
+    "history_id": "hist-pcb-5",
+    "material_id": "pcb",
+    "recorded_date": "2026-09-03",
+    "average_rate": 345,
+    "high_rate": 415,
+    "low_rate": 310,
+    "volume_traded_kg": 690
+  },
+  {
+    "history_id": "hist-pcb-6",
+    "material_id": "pcb",
+    "recorded_date": "2026-09-04",
+    "average_rate": 350,
+    "high_rate": 420,
+    "low_rate": 310,
+    "volume_traded_kg": 780
+  },
+  {
+    "history_id": "hist-pcb-7",
+    "material_id": "pcb",
+    "recorded_date": "2026-09-05",
+    "average_rate": 350,
+    "high_rate": 420,
+    "low_rate": 310,
+    "volume_traded_kg": 740
+  },
+  {
+    "history_id": "hist-lap-1",
+    "material_id": "laptops",
+    "recorded_date": "2026-08-30",
+    "average_rate": 208,
+    "high_rate": 235,
+    "low_rate": 185,
+    "volume_traded_kg": 310
+  },
+  {
+    "history_id": "hist-lap-2",
+    "material_id": "laptops",
+    "recorded_date": "2026-08-31",
+    "average_rate": 209,
+    "high_rate": 238,
+    "low_rate": 188,
+    "volume_traded_kg": 340
+  },
+  {
+    "history_id": "hist-lap-3",
+    "material_id": "laptops",
+    "recorded_date": "2026-09-01",
+    "average_rate": 210,
+    "high_rate": 240,
+    "low_rate": 190,
+    "volume_traded_kg": 390
+  },
+  {
+    "history_id": "hist-lap-4",
+    "material_id": "laptops",
+    "recorded_date": "2026-09-02",
+    "average_rate": 210,
+    "high_rate": 240,
+    "low_rate": 190,
+    "volume_traded_kg": 420
+  },
+  {
+    "history_id": "hist-lap-5",
+    "material_id": "laptops",
+    "recorded_date": "2026-09-03",
+    "average_rate": 211,
+    "high_rate": 240,
+    "low_rate": 190,
+    "volume_traded_kg": 460
+  },
+  {
+    "history_id": "hist-lap-6",
+    "material_id": "laptops",
+    "recorded_date": "2026-09-04",
+    "average_rate": 210,
+    "high_rate": 240,
+    "low_rate": 190,
+    "volume_traded_kg": 510
+  },
+  {
+    "history_id": "hist-lap-7",
+    "material_id": "laptops",
+    "recorded_date": "2026-09-05",
+    "average_rate": 210,
+    "high_rate": 240,
+    "low_rate": 190,
+    "volume_traded_kg": 490
+  }
+]

@@ -1,0 +1,4 @@
+id,recyclerId,recyclerName,materialId,requiredQuantityKg,fulfilledQuantityKg,offeredRatePerKg,pickupRadiusKm,status,expiresAt
+"dem-101","rec-apex","Apex E-Recovery","laptops","500","310","215","25","URGENT","2026-09-08T18:00:00Z"
+"dem-102","rec-ecobirbal","EcoBirbal Metals","pcb","800","520","365","40","URGENT","2026-09-09T18:00:00Z"
+"dem-103","rec-safebat","SafeCell Battery","batteries","1200","780","102","50","OPEN","2026-09-10T18:00:00Z"
