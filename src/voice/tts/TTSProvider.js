@@ -5,6 +5,7 @@
  */
 
 import { IndicF5AudioBank } from '../../data/indicF5AudioBank.js';
+import { normalizeForTTS } from './TTSNormalizer.js';
 
 export class TTSProvider {
   constructor() {
@@ -13,6 +14,37 @@ export class TTSProvider {
     this.isPlayingAudio = false;
     this.onBargeInCb = null;
     this.activeProvider = 'INDIC_F5_NEURAL';
+    this.cachedVoices = [];
+    this.initVoiceListener();
+  }
+
+  initVoiceListener() {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const load = () => {
+        try {
+          const v = window.speechSynthesis.getVoices();
+          if (v && v.length > 0) this.cachedVoices = v;
+        } catch (e) {}
+      };
+      load();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = load;
+      }
+    }
+  }
+
+  getAvailableVoices() {
+    if (this.cachedVoices && this.cachedVoices.length > 0) return this.cachedVoices;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        const v = window.speechSynthesis.getVoices();
+        if (v && v.length > 0) {
+          this.cachedVoices = v;
+          return v;
+        }
+      } catch (e) {}
+    }
+    return [];
   }
 
   registerBargeInHandler(callback) {
@@ -90,30 +122,41 @@ export class TTSProvider {
 
     try {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
+      // Apply vernacular normalization (expands ₹, numbers, Latin terms to phonetic Devanagari)
+      const normalizedText = normalizeForTTS(text, language);
+      const utterance = new SpeechSynthesisUtterance(normalizedText || text);
 
       const targetLang = language === 'mr' ? 'mr-IN' : language === 'en' ? 'en-IN' : 'hi-IN';
       utterance.lang = targetLang;
 
-      // Select natural human-like Indian voice if available in OS
-      const voices = window.speechSynthesis.getVoices();
+      // Select top-tier natural human-like Indian voice if available in OS / browser
+      const voices = this.getAvailableVoices();
       if (voices && voices.length > 0) {
         let selected = null;
         if (language === 'hi') {
-          selected = voices.find(v => v.lang.includes('hi') && (v.name.includes('Natural') || v.name.includes('Online') || v.name.includes('Swara') || v.name.includes('Madhur') || v.name.includes('Google')))
-            || voices.find(v => v.lang.includes('hi'));
+          selected = voices.find(v => (v.name.includes('Swara') || v.name.includes('Madhur')) && v.lang.includes('hi'))
+            || voices.find(v => v.lang.includes('hi') && (v.name.includes('Natural') || v.name.includes('Online')))
+            || voices.find(v => v.lang.includes('hi') && v.name.includes('Google'))
+            || voices.find(v => v.lang.includes('hi'))
+            || voices.find(v => v.lang.startsWith('hi'));
         } else if (language === 'mr') {
-          selected = voices.find(v => v.lang.includes('mr') && (v.name.includes('Natural') || v.name.includes('Online') || v.name.includes('Aarohi') || v.name.includes('Google')))
+          selected = voices.find(v => v.name.includes('Aarohi') && v.lang.includes('mr'))
+            || voices.find(v => v.lang.includes('mr') && (v.name.includes('Natural') || v.name.includes('Online')))
+            || voices.find(v => v.lang.includes('mr') && v.name.includes('Google'))
             || voices.find(v => v.lang.includes('mr'))
-            || voices.find(v => v.lang.includes('hi')); // Marathi often sounds vastly better on Hindi natural voice than English fallback
+            // Hindi neural voice Swara/Madhur renders Devanagari Marathi with far greater warmth than mechanical English fallback
+            || voices.find(v => (v.name.includes('Swara') || v.name.includes('Madhur')) && v.lang.includes('hi'))
+            || voices.find(v => v.lang.includes('hi'));
         } else {
-          selected = voices.find(v => v.lang.includes('en-IN') && (v.name.includes('Natural') || v.name.includes('Online') || v.name.includes('Neerja') || v.name.includes('Prabhat') || v.name.includes('Google')))
-            || voices.find(v => v.lang.includes('en-IN'));
+          selected = voices.find(v => (v.name.includes('Neerja') || v.name.includes('Prabhat')) && v.lang.includes('en'))
+            || voices.find(v => (v.lang.includes('en-IN') || v.lang === 'en_IN') && (v.name.includes('Natural') || v.name.includes('Online')))
+            || voices.find(v => v.lang.includes('en-IN') || v.lang === 'en_IN');
         }
         if (selected) utterance.voice = selected;
       }
 
-      utterance.rate = 1.0;
+      // Warm human cadence: 0.90x pacing prevents rushed robotic phoneme clipping
+      utterance.rate = 0.90;
       utterance.pitch = 1.02;
 
       utterance.onend = () => {

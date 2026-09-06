@@ -2053,6 +2053,48 @@ export default function CollectorPhoneWrapper({
                             ))}
                           </div>
                         </div>
+                      ) : voiceUI.preparedCard?.type === "CONVERSATIONAL_GREETING" ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                          <div style={{ fontSize: 11, color: "var(--accent)", fontWeight: 800, lineHeight: 1.35 }}>
+                            {voiceUI.spokenResponse}
+                          </div>
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 2 }}>
+                            {(voiceUI.preparedCard.options || []).map((opt, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => {
+                                  handleCloseVoice();
+                                  if (opt.action === "CHECK_EARNINGS") {
+                                    setCurrentView("LOTS");
+                                  } else if (opt.action === "NAVIGATE_PRICES") {
+                                    setShowPriceBoard(true);
+                                  } else if (opt.materialId) {
+                                    onStartSellWithCategory(opt.materialId);
+                                    if (opt.weightKg) {
+                                      setVoiceCommandAction({ type: "SET_LOT", materialId: opt.materialId, weight: opt.weightKg, startCamera: true });
+                                    }
+                                  }
+                                }}
+                                style={{
+                                  background: "rgba(212, 255, 40, 0.12)",
+                                  border: "1px solid rgba(212, 255, 40, 0.35)",
+                                  color: "#FFF",
+                                  fontSize: 10.5,
+                                  fontWeight: 800,
+                                  padding: "4px 8px",
+                                  borderRadius: 6,
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 4
+                                }}
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       ) : (
                         <div style={{ fontSize: 11, color: "var(--accent)", fontWeight: 800 }}>
                           {voiceUI.spokenResponse}
@@ -2068,6 +2110,12 @@ export default function CollectorPhoneWrapper({
                             const card = voiceUI.preparedCard;
                             const matId = card?.materialId || "smartphones";
                             const weight = card?.weightKg;
+
+                            if (card?.type === "CONVERSATIONAL_GREETING") {
+                              handleCloseVoice();
+                              onStartSellWithCategory("laptops");
+                              return;
+                            }
 
                             if (card?.type === "NON_EWASTE_REJECTED") {
                               onStartSellWithCategory("smartphones");
@@ -2112,7 +2160,12 @@ export default function CollectorPhoneWrapper({
                           }}
                         >
                           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            {voiceUI.preparedCard?.type === "NON_EWASTE_REJECTED" ? (
+                            {voiceUI.preparedCard?.type === "CONVERSATIONAL_GREETING" ? (
+                              <>
+                                <Sparkles size={13} />
+                                <span>{language === "mr" ? "सुरुवात करा" : language === "hi" ? "शुरुआत करें" : "Start Selling"}</span>
+                              </>
+                            ) : voiceUI.preparedCard?.type === "NON_EWASTE_REJECTED" ? (
                               <>
                                 <Smartphone size={13} />
                                 <span>{language === "mr" ? "ई-कचरा निवडा" : language === "hi" ? "ई-कचरा चुनें" : "Choose E-Waste"}</span>

@@ -35,6 +35,11 @@ export const AGENT_INTENTS = {
   REJECT_NON_EWASTE: "REJECT_NON_EWASTE",
   THANK_YOU: "THANK_YOU",
   GOODBYE: "GOODBYE",
+  HOW_ARE_YOU: "HOW_ARE_YOU",
+  AUDIBILITY_CHECK: "AUDIBILITY_CHECK",
+  GREETING: "GREETING",
+  ASSISTANT_IDENTITY: "ASSISTANT_IDENTITY",
+  HELP_PROMPT: "HELP_PROMPT",
   UNKNOWN: "UNKNOWN"
 };
 
@@ -1011,7 +1016,7 @@ export function classifyUtteranceIntent(text = "", pendingQuestion = null, scree
 
   // 7. Affirmative Confirmation
   if (
-    /^(haan|ha|haa|hnn|yes|ok|sahi hai|theek hai|ho|chalta|chalel|chalega|done|confirm|खात्री|हो|हाँ|सही|ठीक|आगे बढ़ें|पुढे चला)/i.test(lower) ||
+    /^(haan|ha|haa|hnn|yes|ok|sahi hai|theek hai|ho|chalta|chalel|chalega|done|confirm|खात्री|हो|हाँ|सही|ठीक|आगे बढ़ें|पुढे चला)\b/i.test(lower) ||
     lower.includes("sahi hai") ||
     lower.includes("chalega") ||
     lower.includes("होय")
@@ -1060,6 +1065,98 @@ export function classifyUtteranceIntent(text = "", pendingQuestion = null, scree
     if (words.length <= 5) {
       return { intent: AGENT_INTENTS.GOODBYE };
     }
+  }
+
+  // 15a. How are you / Social Inquiry (e.g. "क्यासे हो आप", "कैसे हो आप", "कसा आहेस", "how are you")
+  if (
+    lower.includes("क्यासे हो") ||
+    lower.includes("कयासे हो") ||
+    lower.includes("कैसे हो") ||
+    lower.includes("कैसा है") ||
+    lower.includes("कैसे हैं") ||
+    lower.includes("आप कैसे") ||
+    lower.includes("tum kaise") ||
+    lower.includes("aap kaise") ||
+    lower.includes("kaise ho") ||
+    lower.includes("kaisa hai") ||
+    lower.includes("kese ho") ||
+    lower.includes("kyase ho") ||
+    lower.includes("kayse ho") ||
+    lower.includes("कसा आहेस") ||
+    lower.includes("कसे आहात") ||
+    lower.includes("कशी आहेस") ||
+    lower.includes("kasa ahes") ||
+    lower.includes("kase ahat") ||
+    lower.includes("how are you") ||
+    lower.includes("how r u") ||
+    lower.includes("how do you do") ||
+    lower.includes("sab theek") ||
+    lower.includes("सब ठीक") ||
+    lower.includes("सगळं ठीक")
+  ) {
+    return { intent: AGENT_INTENTS.HOW_ARE_YOU };
+  }
+
+  // 15b. Audibility / Mic Check (e.g. "मेरी आवाज आ रही है", "सुन रहे हो", "ऐकू येतंय का", "can you hear me")
+  if (
+    lower.includes("आवाज आ रही") ||
+    lower.includes("आवाज़ आ रही") ||
+    lower.includes("सुन रहे हो") ||
+    lower.includes("सुन रहे हैं") ||
+    lower.includes("सुन पा रहे") ||
+    lower.includes("सुनाई दे रहा") ||
+    lower.includes("मेरी आवाज") ||
+    lower.includes("awaz aa rahi") ||
+    lower.includes("awaaz aa rahi") ||
+    lower.includes("sun rahe ho") ||
+    lower.includes("sun rahe ho kya") ||
+    lower.includes("sun rahe ho na") ||
+    lower.includes("ऐकू येतंय") ||
+    lower.includes("ऐकू येत आहे") ||
+    lower.includes("आवाज येतोय") ||
+    lower.includes("aiku yetay") ||
+    lower.includes("can you hear me") ||
+    lower.includes("am i audible") ||
+    lower.includes("are you listening") ||
+    lower.includes("are you there") ||
+    lower.includes("hearing me")
+  ) {
+    return { intent: AGENT_INTENTS.AUDIBILITY_CHECK };
+  }
+
+  // 15c. Greeting / Salutation (e.g. "नमस्ते", "नमस्कार", "hello", "hi", "राम राम")
+  const greetingTokens = [
+    "नमस्ते", "नमस्कार", "राम राम", "सुप्रभात", "शुभ प्रभात", "जय हिंद", "जय महाराष्ट्र",
+    "hello", "hi", "hey", "namaste", "namaskar", "ram ram", "good morning", "good afternoon"
+  ];
+  if (greetingTokens.some((tok) => lower === tok || lower.startsWith(`${tok} `) || lower.endsWith(` ${tok}`))) {
+    const words = lower.split(/\s+/).filter(Boolean);
+    if (words.length <= 4) {
+      return { intent: AGENT_INTENTS.GREETING };
+    }
+  }
+
+  // 15d. Identity / Capability Inquiry (e.g. "आप कौन हो", "तुम कौन हो", "तू कोण आहेस", "who are you")
+  if (
+    lower.includes("आप कौन हो") ||
+    lower.includes("तुम कौन हो") ||
+    lower.includes("तू कौन है") ||
+    lower.includes("तू कोण आहेस") ||
+    lower.includes("तुम्ही कोण आहात") ||
+    lower.includes("aap kaun ho") ||
+    lower.includes("tum kaun ho") ||
+    lower.includes("who are you") ||
+    lower.includes("what is this app") ||
+    lower.includes("what do you do")
+  ) {
+    return { intent: AGENT_INTENTS.ASSISTANT_IDENTITY };
+  }
+
+  // 15e. Help / Assistance Request
+  if (
+    lower === "help" || lower.includes("help me") || lower.includes("मदद") || lower.includes("सहायता") || lower.includes("मदत हवी")
+  ) {
+    return { intent: AGENT_INTENTS.HELP_PROMPT };
   }
 
   // 16. Sell Scrap (General Entry Point)
@@ -2202,6 +2299,142 @@ export function processAgentUtterance(rawUtterance = "", agentContext = {}, exte
         ? "धन्यवाद! फिर मिलेंगे।"
         : "Goodbye! Have a great day.";
     stepResult.shouldListenAgain = false;
+    return stepResult;
+  }
+
+  // 15a. How are you / Social Inquiry (e.g. "क्यासे हो आप")
+  if (classification.intent === AGENT_INTENTS.HOW_ARE_YOU) {
+    stepResult.phase = "ACTION";
+    stepResult.activityTrace = [
+      {
+        text: language === "mr" ? "कुशल विचारपूस" : language === "hi" ? "कुशल-मंगल संवाद" : "Social Conversation",
+        status: "DONE"
+      }
+    ];
+    stepResult.spokenResponse =
+      language === "mr"
+        ? "मी अगदी मजेत आहे! तुमचा ई-वेस्ट डिजिटल साथी. सांगा, आज काय विकायचे आहे — लॅपटॉप, बॅटरी की तांब्याची तार?"
+        : language === "hi"
+        ? "मैं बिल्कुल ठीक हूँ! आपका ई-वेस्ट साथी। बताइए, आज आप क्या बेचना चाहते हैं — लैपटॉप, बैटरी या तांबे के तार?"
+        : "I'm doing great! I'm your verified E-Waste partner. What would you like to sell today — laptops, batteries, or copper wire?";
+    stepResult.preparedCard = {
+      type: "CONVERSATIONAL_GREETING",
+      title: language === "mr" ? "ई-कचरा निवडा किंवा बोला:" : language === "hi" ? "ई-कचरा चुनें या बोलें:" : "Select E-Waste or Speak:",
+      options: [
+        { label: language === "mr" ? "१० किलो लॅपटॉप" : language === "hi" ? "10 किलो लैपटॉप" : "10 kg Laptops", materialId: "laptops", weightKg: 10 },
+        { label: language === "mr" ? "२५ किलो बॅटरी" : language === "hi" ? "25 किलो बैटरी" : "25 kg Batteries", materialId: "batteries", weightKg: 25 },
+        { label: language === "mr" ? "कमाई तपासा" : language === "hi" ? "कमाई देखें" : "Check Earnings", action: "CHECK_EARNINGS" }
+      ]
+    };
+    stepResult.shouldListenAgain = true;
+    return stepResult;
+  }
+
+  // 15b. Audibility / Mic Check (e.g. "मेरी आवाज आ रही है", "सुन रहे हो")
+  if (classification.intent === AGENT_INTENTS.AUDIBILITY_CHECK) {
+    stepResult.phase = "ACTION";
+    stepResult.activityTrace = [
+      {
+        text: language === "mr" ? "माईक आवाज तपासणी" : language === "hi" ? "माइक ऑडिबिलिटी जांच" : "Mic Check Verified",
+        status: "DONE"
+      }
+    ];
+    stepResult.spokenResponse =
+      language === "mr"
+        ? "होय, तुमचा आवाज अगदी स्पष्ट ऐकू येत आहे! सांगा, किती किलो स्क्रॅप विकायचे आहे?"
+        : language === "hi"
+        ? "हाँ, आपकी आवाज़ बिल्कुल साफ़ आ रही है! बताइए, कितने किलो स्क्रैप बेचना है?"
+        : "Yes, I can hear you loud and clear! Tell me what material and weight you have to sell.";
+    stepResult.preparedCard = {
+      type: "CONVERSATIONAL_GREETING",
+      title: language === "mr" ? "स्क्रॅप सांगा:" : language === "hi" ? "स्क्रैप बताएं:" : "Choose Item:",
+      options: [
+        { label: language === "mr" ? "१० किलो लॅपटॉप" : language === "hi" ? "10 किलो लैपटॉप" : "10 kg Laptops", materialId: "laptops", weightKg: 10 },
+        { label: language === "mr" ? "२५ किलो बॅटरी" : language === "hi" ? "25 किलो बैटरी" : "25 kg Batteries", materialId: "batteries", weightKg: 25 }
+      ]
+    };
+    stepResult.shouldListenAgain = true;
+    return stepResult;
+  }
+
+  // 15c. Greeting / Salutation (e.g. "नमस्ते", "नमस्कार", "hello")
+  if (classification.intent === AGENT_INTENTS.GREETING) {
+    stepResult.phase = "ACTION";
+    stepResult.activityTrace = [
+      {
+        text: language === "mr" ? "अभिवादन" : language === "hi" ? "अभिवादन" : "Greeting",
+        status: "DONE"
+      }
+    ];
+    stepResult.spokenResponse =
+      language === "mr"
+        ? "नमस्कार! मी तुम्हाला ई-कचऱ्याचे सर्वोत्तम सरकारी प्रमाणित भाव मिळवून देईन. सांगा काय विकायचे आहे?"
+        : language === "hi"
+        ? "नमस्ते! मैं आपको ई-कचरे के सबसे अच्छे CPCB अधिकृत दाम दिला सकता हूँ। बताइए क्या बेचना है?"
+        : "Hello! I can help you get top verified CPCB prices for your electronic scrap. What do you have today?";
+    stepResult.preparedCard = {
+      type: "CONVERSATIONAL_GREETING",
+      title: language === "mr" ? "ई-कचरा निवडा:" : language === "hi" ? "ई-कचरा चुनें:" : "Choose Material:",
+      options: [
+        { label: language === "mr" ? "१० किलो लॅपटॉप" : language === "hi" ? "10 किलो लैपटॉप" : "10 kg Laptops", materialId: "laptops", weightKg: 10 },
+        { label: language === "mr" ? "२५ किलो बॅटरी" : language === "hi" ? "25 किलो बैटरी" : "25 kg Batteries", materialId: "batteries", weightKg: 25 }
+      ]
+    };
+    stepResult.shouldListenAgain = true;
+    return stepResult;
+  }
+
+  // 15d. Assistant Identity / Capability (e.g. "आप कौन हो", "who are you")
+  if (classification.intent === AGENT_INTENTS.ASSISTANT_IDENTITY) {
+    stepResult.phase = "ACTION";
+    stepResult.activityTrace = [
+      {
+        text: language === "mr" ? "सहायक परिचय" : language === "hi" ? "सहायक परिचय" : "Assistant Identity",
+        status: "DONE"
+      }
+    ];
+    stepResult.spokenResponse =
+      language === "mr"
+        ? "मी ई-वेस्ट ब्रिजचा व्हॉइस असिस्टंट आहे. मी भंगार गोळा करणाऱ्यांना थेट अधिकृत रीसायकलर्सकडून जास्तीत जास्त भाव आणि CPCB पावती मिळवून देतो."
+        : language === "hi"
+        ? "मैं ई-वेस्ट ब्रिज का वॉइस असिस्टेंट हूँ। मैं कबाड़ियों को सीधे CPCB अधिकृत रीसायकलर से जोड़कर सबसे ज्यादा दाम और रसीद दिलाता हूँ।"
+        : "I am the E-Waste Bridge voice assistant. I help scrap collectors get top verified prices and legal CPCB receipts directly from recyclers.";
+    stepResult.preparedCard = {
+      type: "CONVERSATIONAL_GREETING",
+      title: language === "mr" ? "सुरुवात करा:" : language === "hi" ? "शुरुआत करें:" : "Get Started:",
+      options: [
+        { label: language === "mr" ? "१० किलो लॅपटॉप" : language === "hi" ? "10 किलो लैपटॉप" : "10 kg Laptops", materialId: "laptops", weightKg: 10 },
+        { label: language === "mr" ? "भाव सूची पाहा" : language === "hi" ? "दाम सूची देखें" : "Price Board", action: "NAVIGATE_PRICES" }
+      ]
+    };
+    stepResult.shouldListenAgain = true;
+    return stepResult;
+  }
+
+  // 15e. Help / Guidance
+  if (classification.intent === AGENT_INTENTS.HELP_PROMPT) {
+    stepResult.phase = "ACTION";
+    stepResult.activityTrace = [
+      {
+        text: language === "mr" ? "मार्गदर्शन" : language === "hi" ? "मार्गदर्शन" : "Guidance",
+        status: "DONE"
+      }
+    ];
+    stepResult.spokenResponse =
+      language === "mr"
+        ? "तुम्ही '१० किलो लॅपटॉप विकायचे आहेत', 'आजचा भाव काय आहे', किंवा 'माझी कमाई दाखवा' असे सहज बोलू शकता."
+        : language === "hi"
+        ? "आप '10 किलो लैपटॉप बेचना है', 'आज का तांबे का भाव क्या है', या 'मेरी कमाई दिखाओ' आसानी से बोल सकते हैं।"
+        : "You can say 'Sell 10 kg laptops', 'What is copper price today', or 'Check my earnings'.";
+    stepResult.preparedCard = {
+      type: "CONVERSATIONAL_GREETING",
+      title: language === "mr" ? "उदाहरणे:" : language === "hi" ? "उदाहरण:" : "Examples:",
+      options: [
+        { label: language === "mr" ? "१० किलो लॅपटॉप" : language === "hi" ? "10 किलो लैपटॉप" : "10 kg Laptops", materialId: "laptops", weightKg: 10 },
+        { label: language === "mr" ? "कमाई तपासा" : language === "hi" ? "कमाई देखें" : "Check Earnings", action: "CHECK_EARNINGS" }
+      ]
+    };
+    stepResult.shouldListenAgain = true;
     return stepResult;
   }
 
