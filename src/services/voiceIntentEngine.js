@@ -396,7 +396,7 @@ export function parseVoiceIntent(transcript = "", language = "mr") {
  * Builds state-aware verbal response and visual confirmation card props
  */
 export function buildVoiceResponse(command, language = "mr", contextState = {}) {
-  const { currentSettledLot, activeLotDraft } = contextState;
+  const { currentSettledLot, activeLotDraft, collector, lots } = contextState;
 
   if (command.intent === INTENT_TYPES.SELL_SCRAP) {
     const matName = command.entities.materialName || "Scrap";
@@ -536,33 +536,39 @@ export function buildVoiceResponse(command, language = "mr", contextState = {}) 
 
   // Earnings Summary
   if (command.intent === INTENT_TYPES.CHECK_EARNINGS) {
+    const earned = collector?.monthlyEarningsInr ?? 2840;
+    const kg = collector?.monthlyWeightKg ?? 46.5;
+    const pending = (lots || [])
+      .filter((l) => l.status !== "SETTLED" && l.status !== "CLOSED" && l.paymentStatus !== "CASH_SETTLED" && l.paymentStatus !== "PAID")
+      .reduce((sum, l) => sum + (l.finalNetPayout || l.netPayout || l.estimatedValue || 0), 0) || 1800;
+
     if (language === "mr") {
       return {
-        spoken: "या महिन्यात तुम्ही ₹१४,८२० रोख रक्कम कमावली आहे आणि १८२ किलो ई-कचरा सुरक्षित पुनर्वापराकडे पाठवला आहे.",
-        title: "या महिन्याची कमाई: ₹१४,८२०",
-        actionLabel: "१८२ किलो कचरा पुनर्वापरात वळवला",
-        confirmText: "ठीक आहे",
+        spoken: `या महिन्यात तुमचे ₹${earned.toLocaleString("en-IN")} रोख जमा झाले आहेत, ₹${pending.toLocaleString("en-IN")} बाकी आहेत, आणि एकूण ${kg} किलो ई-कचरा सुरक्षित पुनर्वापरात वळवला आहे.`,
+        title: `या महिन्याची कमाई: ₹${earned.toLocaleString("en-IN")}`,
+        actionLabel: `${kg} किलो कचरा • ₹${pending.toLocaleString("en-IN")} बाकी`,
+        confirmText: "पावत्या पहा",
         cancelText: "बंद करा",
-        nextStep: "HOME"
+        nextStep: "LOTS"
       };
     }
     if (language === "hi") {
       return {
-        spoken: "इस महीने आपने ₹14,820 नकद कमाए हैं और 182 किलो ई-कचरा सुरक्षित रीसायकल किया है.",
-        title: "इस माह की कमाई: ₹14,820",
-        actionLabel: "182 किलो कचरा रीसायकल किया",
-        confirmText: "ठीक है",
+        spoken: `इस महीने आपके ₹${earned.toLocaleString("en-IN")} नकद जमा हो चुके हैं, ₹${pending.toLocaleString("en-IN")} बाकी हैं, और ${kg} किलो ई-कचरा सुरक्षित रीसायकल हुआ है.`,
+        title: `इस माह की कमाई: ₹${earned.toLocaleString("en-IN")}`,
+        actionLabel: `${kg} किलो कचरा • ₹${pending.toLocaleString("en-IN")} बाकी`,
+        confirmText: "रसीदें देखें",
         cancelText: "बंद करें",
-        nextStep: "HOME"
+        nextStep: "LOTS"
       };
     }
     return {
-      spoken: "You earned ₹14,820 cash this month and diverted 182 kg of e-waste safely.",
-      title: "Monthly Earnings: ₹14,820",
-      actionLabel: "182 kg Diverted Safely",
-      confirmText: "OK",
+      spoken: `This month you have settled ₹${earned.toLocaleString("en-IN")} with ₹${pending.toLocaleString("en-IN")} in pending dues, across ${kg} kg diverted to recycling.`,
+      title: `Monthly Settled: ₹${earned.toLocaleString("en-IN")}`,
+      actionLabel: `${kg} kg Diverted • ₹${pending.toLocaleString("en-IN")} Pending`,
+      confirmText: "View Receipts",
       cancelText: "Close",
-      nextStep: "HOME"
+      nextStep: "LOTS"
     };
   }
 

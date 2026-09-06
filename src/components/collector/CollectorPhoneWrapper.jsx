@@ -1195,7 +1195,7 @@ export default function CollectorPhoneWrapper({
         // This component never calls processAgentUtterance directly.
         const stepResult = await voiceAdapterProcess(textToProcess, {
           agentCtx: effectiveContext,
-          external: { lots, buyRequests, currentSettledLot, activeLotDraft },
+          external: { lots, buyRequests, currentSettledLot, activeLotDraft, collector },
           screen: screenContext
         });
 
@@ -2053,6 +2053,39 @@ export default function CollectorPhoneWrapper({
                             ))}
                           </div>
                         </div>
+                      ) : voiceUI.preparedCard?.type === "EARNINGS_SUMMARY" ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 7, background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.12)", padding: "10px", borderRadius: 10 }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <span style={{ fontSize: 10, fontWeight: 800, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                              {language === "mr" ? "मासिक ताळेबंद" : language === "hi" ? "मासिक खाता विवरण" : "Monthly Live Ledger"}
+                            </span>
+                            <span style={{ fontSize: 9.5, color: "#94A3B8" }}>
+                              {voiceUI.preparedCard.settledLotsCount} {language === "mr" ? "लॉट पूर्ण" : language === "hi" ? "लॉट पूर्ण" : "Lots Done"}
+                            </span>
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                            <div style={{ background: "rgba(34, 197, 94, 0.12)", border: "1px solid rgba(34, 197, 94, 0.3)", borderRadius: 8, padding: "6px 8px" }}>
+                              <div style={{ fontSize: 9, color: "#86EFAC", fontWeight: 700, textTransform: "uppercase" }}>
+                                {language === "mr" ? "जमा रक्कम" : language === "hi" ? "कुल जमा" : "SETTLED"}
+                              </div>
+                              <div style={{ fontSize: 15, fontWeight: 900, color: "#FFF", fontFamily: "var(--font-mono)" }}>
+                                ₹{voiceUI.preparedCard.totalEarned.toLocaleString("en-IN")}
+                              </div>
+                            </div>
+                            <div style={{ background: "rgba(245, 158, 11, 0.12)", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: 8, padding: "6px 8px" }}>
+                              <div style={{ fontSize: 9, color: "#FDE68A", fontWeight: 700, textTransform: "uppercase" }}>
+                                {language === "mr" ? "थकीत येणे" : language === "hi" ? "बाकी रोकड़" : "PENDING DUES"}
+                              </div>
+                              <div style={{ fontSize: 15, fontWeight: 900, color: "#FFF", fontFamily: "var(--font-mono)" }}>
+                                ₹{voiceUI.preparedCard.pendingPayouts.toLocaleString("en-IN")}
+                              </div>
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 10.5, color: "#CBD5E1", display: "flex", justifyContent: "space-between" }}>
+                            <span>{language === "mr" ? "पुनर्वापरात वळवले:" : language === "hi" ? "रीसायकल वजन:" : "Diverted Weight:"}</span>
+                            <span style={{ fontWeight: 800, color: "#FFF" }}>{voiceUI.preparedCard.divertedKg} kg</span>
+                          </div>
+                        </div>
                       ) : voiceUI.preparedCard?.type === "CONVERSATIONAL_GREETING" ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                           <div style={{ fontSize: 11, color: "var(--accent)", fontWeight: 800, lineHeight: 1.35 }}>
@@ -2111,6 +2144,12 @@ export default function CollectorPhoneWrapper({
                             const matId = card?.materialId || "smartphones";
                             const weight = card?.weightKg;
 
+                            if (card?.type === "EARNINGS_SUMMARY") {
+                              handleCloseVoice();
+                              onViewLots();
+                              return;
+                            }
+
                             if (card?.type === "CONVERSATIONAL_GREETING") {
                               handleCloseVoice();
                               onStartSellWithCategory("laptops");
@@ -2160,7 +2199,12 @@ export default function CollectorPhoneWrapper({
                           }}
                         >
                           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            {voiceUI.preparedCard?.type === "CONVERSATIONAL_GREETING" ? (
+                            {voiceUI.preparedCard?.type === "EARNINGS_SUMMARY" ? (
+                              <>
+                                <Package size={13} />
+                                <span>{language === "mr" ? "पावत्या व लॉट पहा" : language === "hi" ? "रसीदें और लॉट देखें" : "View Lots & Receipts"}</span>
+                              </>
+                            ) : voiceUI.preparedCard?.type === "CONVERSATIONAL_GREETING" ? (
                               <>
                                 <Sparkles size={13} />
                                 <span>{language === "mr" ? "सुरुवात करा" : language === "hi" ? "शुरुआत करें" : "Start Selling"}</span>

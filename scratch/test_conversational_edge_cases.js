@@ -31,8 +31,35 @@ console.log('Spoken Response:', res.spokenResponse);
 console.log('Prepared Card Type:', res.preparedCard?.type);
 console.log('Should Listen Again:', res.shouldListenAgain);
 
-if (passed === testUtterances.length && res.intent === AGENT_INTENTS.HOW_ARE_YOU) {
-  console.log('\nALL CONVERSATIONAL EDGE CASES PASSED!');
+console.log('\n--- Testing Check Earnings against Live Dashboard Data ---');
+const dashboardCollector = {
+  monthlyEarningsInr: 2840,
+  monthlyWeightKg: 46.5,
+  totalLotsCompleted: 29
+};
+const dashboardLots = [
+  { lotId: "LOT-1", status: "PENDING", netPayout: 1800 }
+];
+
+const earningsRes = processAgentUtterance("Check my earnings.", { user: { language: "en" } }, { collector: dashboardCollector, lots: dashboardLots }, { screen: "HOME" });
+console.log('Earnings Spoken Response:', earningsRes.spokenResponse);
+console.log('Earnings Prepared Card:', earningsRes.preparedCard);
+
+const earningsMatch = earningsRes.spokenResponse.includes("2,840") &&
+  earningsRes.spokenResponse.includes("1,800") &&
+  earningsRes.spokenResponse.includes("46.5") &&
+  earningsRes.preparedCard.totalEarned === 2840 &&
+  earningsRes.preparedCard.pendingPayouts === 1800 &&
+  earningsRes.preparedCard.divertedKg === 46.5;
+
+if (!earningsMatch) {
+  console.error('[FAIL] Check earnings response did not match live dashboard numbers!');
+  process.exit(1);
+}
+console.log('[PASS] Check earnings matches dashboard data exactly (₹2,840 settled, ₹1,800 pending, 46.5 kg)!');
+
+if (passed === testUtterances.length && res.intent === AGENT_INTENTS.HOW_ARE_YOU && earningsMatch) {
+  console.log('\nALL CONVERSATIONAL AND DASHBOARD CONSISTENCY TESTS PASSED!');
 } else {
   process.exit(1);
 }

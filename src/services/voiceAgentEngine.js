@@ -286,15 +286,25 @@ export const AGENT_TOOLS = {
     name: "checkEarnings",
     description: "Aggregates collector monthly income, total weight safely diverted to formal recyclers, and active receipts.",
     parameters: ["collectorId"],
-    execute: () => {
+    execute: (context, { collector, lots } = {}) => {
+      const totalEarned = collector?.monthlyEarningsInr !== undefined ? collector.monthlyEarningsInr : 2840;
+      const divertedWeightKg = collector?.monthlyWeightKg !== undefined ? collector.monthlyWeightKg : 46.5;
+      const settledLotsCount = collector?.totalLotsCompleted !== undefined
+        ? collector.totalLotsCompleted
+        : (((lots || []).filter(l => l.status === "SETTLED" || l.status === "CLOSED").length) || 29);
+      const computedPending = (lots || [])
+        .filter((l) => l.status !== "SETTLED" && l.status !== "CLOSED" && l.paymentStatus !== "CASH_SETTLED" && l.paymentStatus !== "PAID")
+        .reduce((sum, l) => sum + (l.finalNetPayout || l.netPayout || l.estimatedValue || 0), 0);
+      const pendingPayouts = computedPending > 0 ? computedPending : 1800;
+
       return {
         status: "SUCCESS",
         data: {
           month: "September 2026",
-          totalEarned: 14820,
-          divertedWeightKg: 182,
-          settledLotsCount: 8,
-          pendingPayouts: 0
+          totalEarned,
+          divertedWeightKg,
+          settledLotsCount,
+          pendingPayouts
         },
         requiresConfirmation: false,
         error: null
@@ -1184,7 +1194,7 @@ export function processAgentUtterance(rawUtterance = "", agentContext = {}, exte
     conversation: { ...defaultCtx.conversation, ...(agentContext?.conversation || {}) }
   };
   const language = safeAgentContext.user.language || "mr";
-  const { lots = [], buyRequests = [], currentSettledLot, activeLotDraft } = externalData;
+  const { lots = [], buyRequests = [], currentSettledLot, activeLotDraft, collector } = externalData;
 
   const text = rawUtterance.trim();
   const lower = text.toLowerCase();
@@ -2186,10 +2196,11 @@ export function processAgentUtterance(rawUtterance = "", agentContext = {}, exte
   // Case 9: Check Earnings
   if (classification.intent === AGENT_INTENTS.CHECK_EARNINGS) {
     stepResult.toolCalls.push({ tool: "checkEarnings", args: { collectorId: safeAgentContext.user.id } });
-    const earningsRes = AGENT_TOOLS.checkEarnings.execute(safeAgentContext);
+    const earningsRes = AGENT_TOOLS.checkEarnings.execute(safeAgentContext, { collector, lots });
     const earnings = earningsRes.data;
 
     stepResult.phase = "ACTION";
+    stepResult.navigateTo = "LOTS_LIST";
     stepResult.activityTrace = [
       {
         text: language === "mr" ? "मासिक लेजर तपासले" : language === "hi" ? "मासिक बही-खाता जांचा" : "Checked monthly ledger",
@@ -2201,15 +2212,17 @@ export function processAgentUtterance(rawUtterance = "", agentContext = {}, exte
       type: "EARNINGS_SUMMARY",
       totalEarned: earnings.totalEarned,
       divertedKg: earnings.divertedWeightKg,
+      pendingPayouts: earnings.pendingPayouts,
+      settledLotsCount: earnings.settledLotsCount,
       month: earnings.month
     };
 
     stepResult.spokenResponse =
       language === "mr"
-        ? `या महिन्यात तुम्ही ₹${earnings.totalEarned.toLocaleString("en-IN")} कमावले आहेत आणि ${earnings.divertedWeightKg} किलो ई-कचरा सुरक्षित पुनर्वापरात वळवला आहे.`
+        ? `या महिन्यात तुमचे ₹${earnings.totalEarned.toLocaleString("en-IN")} जमा झाले आहेत, ₹${earnings.pendingPayouts.toLocaleString("en-IN")} येणे बाकी आहे, आणि एकूण ${earnings.divertedWeightKg} किलो ई-कचरा सुरक्षित पुनर्वापरात वळवला आहे.`
         : language === "hi"
-        ? `इस महीने आपने ₹${earnings.totalEarned.toLocaleString("en-IN")} कमाए हैं और ${earnings.divertedWeightKg} किलो ई-कचरा रीसायकल किया है।`
-        : `You earned ₹${earnings.totalEarned.toLocaleString("en-IN")} this month and safely diverted ${earnings.divertedWeightKg} kg of e-waste.`;
+        ? `इस महीने आपके ₹${earnings.totalEarned.toLocaleString("en-IN")} खाते में जमा हो चुके हैं, ₹${earnings.pendingPayouts.toLocaleString("en-IN")} बाकी हैं, और कुल ${earnings.divertedWeightKg} किलो ई-कचरा सुरक्षित रीसायकल हुआ है।`
+        : `This month you have settled ₹${earnings.totalEarned.toLocaleString("en-IN")} with ₹${earnings.pendingPayouts.toLocaleString("en-IN")} in pending dues, and safely diverted ${earnings.divertedWeightKg} kg of e-waste.`;
 
     stepResult.shouldListenAgain = false;
     return stepResult;
