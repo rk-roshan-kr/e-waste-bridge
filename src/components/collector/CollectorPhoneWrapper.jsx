@@ -263,6 +263,7 @@ export default function CollectorPhoneWrapper({
   const [showSettingsSheet, setShowSettingsSheet] = useState(false);
   const [showAIStackModal, setShowAIStackModal] = useState(false);
   const [showCalibrationModal, setShowCalibrationModal] = useState(false);
+  const showCalibrationModalRef = useRef(false);
   const [micCalibration, setMicCalibration] = useState(() => {
     try {
       const saved = localStorage.getItem("collector_mic_calibration");
@@ -274,6 +275,14 @@ export default function CollectorPhoneWrapper({
   const micCalibrationRef = useRef(micCalibration);
   useEffect(() => { micCalibrationRef.current = micCalibration; }, [micCalibration]);
   const gainNodeRef = useRef(null);
+  const updateVolumeRef = useRef(null);
+
+  useEffect(() => {
+    showCalibrationModalRef.current = showCalibrationModal;
+    if (showCalibrationModal) {
+      startLiveMicAudio();
+    }
+  }, [showCalibrationModal]);
 
   const handleSaveCalibration = (newCalib) => {
     setMicCalibration(newCalib);
@@ -632,6 +641,9 @@ export default function CollectorPhoneWrapper({
         if (audioContextRef.current.state === "suspended") {
           try { await audioContextRef.current.resume(); } catch (e) {}
         }
+        if (!animFrameRef.current && updateVolumeRef.current) {
+          animFrameRef.current = requestAnimationFrame(updateVolumeRef.current);
+        }
         startNewMediaRecorder(micStreamRef.current);
         return;
       }
@@ -672,14 +684,18 @@ export default function CollectorPhoneWrapper({
           const updateVolume = () => {
             if (!micStreamRef.current) return;
 
-            // If assistant is speaking, continuous listening is off (and not holding mic), or already in ACTION/COMMITTED, do not trigger VAD!
+            const isCalibrating = showCalibrationModalRef.current;
+
+            // If assistant is speaking, continuous listening is off (and not holding mic and not calibrating), or already in ACTION/COMMITTED, do not trigger VAD!
             if (
-              (!isContinuousListeningRef.current && !isHoldingMicRef.current) ||
+              (!isContinuousListeningRef.current && !isHoldingMicRef.current && !isCalibrating) ||
               isSpeakingRef.current ||
               ttsProvider.isPlayingAudio ||
-              vadPhaseRef.current === "UNDERSTANDING" ||
-              vadPhaseRef.current === "ACTION" ||
-              vadPhaseRef.current === "COMMITTED"
+              (!isCalibrating && (
+                vadPhaseRef.current === "UNDERSTANDING" ||
+                vadPhaseRef.current === "ACTION" ||
+                vadPhaseRef.current === "COMMITTED"
+              ))
             ) {
               setMicAudioLevel(0);
               animFrameRef.current = requestAnimationFrame(updateVolume);
@@ -696,10 +712,17 @@ export default function CollectorPhoneWrapper({
             const level = Math.min(100, Math.round(rms * 650));
 
             const now = Date.now();
-            // Throttle micAudioLevel updates to ~80ms (12fps) to eliminate 60fps full-tree re-render shutter
-            if (now - lastVolTimeRef.current >= 80) {
+            // Responsive updates: ~40ms (25fps) during calibration, ~80ms (12fps) during normal operation
+            const throttleMs = isCalibrating ? 40 : 80;
+            if (now - lastVolTimeRef.current >= throttleMs) {
               lastVolTimeRef.current = now;
               setMicAudioLevel(level);
+            }
+
+            // In calibration modal, do NOT trigger conversational agent state transitions!
+            if (isCalibrating) {
+              animFrameRef.current = requestAnimationFrame(updateVolume);
+              return;
             }
 
             // Calibrated Voice Activity Watchdog
@@ -785,6 +808,7 @@ export default function CollectorPhoneWrapper({
 
             animFrameRef.current = requestAnimationFrame(updateVolume);
           };
+          updateVolumeRef.current = updateVolume;
           updateVolume();
         }
 

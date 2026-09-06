@@ -1,11 +1,11 @@
-﻿/**
+/**
  * LotStore.js - Deterministic Lot State Machine
  * Part of E-Waste Bridge Architecture Blueprint v3
  * @level L1 L2 L3
  *
  * State transitions:
- *   DRAFT → QUOTED → ACCEPTED → SETTLED
- *              ↘ CANCELLED
+ *   DRAFT -> QUOTED -> ACCEPTED -> SETTLED
+ *              \-> CANCELLED
  *
  * IMPORTANT: This is the single owner of lot business state.
  * VoiceRuntime produces Commands. LotStore executes them and updates state.

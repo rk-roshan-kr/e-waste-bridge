@@ -223,8 +223,8 @@ TOTAL TESTS: 52 | PASSED: 52 | FAILED: 0
 ===============================================================
 TOTAL TESTS: 41 | PASSED: 41 | FAILED: 0
 ===============================================================
-✓ 2333 modules transformed.
-✓ built in ~330ms
+[PASS] 2333 modules transformed.
+[PASS] built in ~330ms
 ```
 
 ---

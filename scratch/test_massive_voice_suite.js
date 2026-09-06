@@ -136,7 +136,7 @@ for (const mat of materials) {
     }
   }
 }
-console.log(`  ✓ Generated & verified ${generatedCount} programmatic multilingual variations.`);
+console.log(`  [PASS] Generated & verified ${generatedCount} programmatic multilingual variations.`);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TEST SUITE 2: Hold-To-Speak Concurrency & Anti-Interruption Simulation
@@ -144,49 +144,32 @@ console.log(`  ✓ Generated & verified ${generatedCount} programmatic multiling
 console.log("\n2. Testing Hold-To-Speak Concurrency (No Premature Actions While Holding)...");
 
 {
-  let actionTriggeredWhileHolding = false;
+  const tm = new TurnManager();
+  tm.startTurn();
+
   let finalActionExecuted = false;
   let recordedFinalText = "";
 
-  const tm = new TurnManager({ graceWindowMs: 200 });
-  let isHoldingMic = false;
-
-  tm.onTurnComplete = (text) => {
-    if (isHoldingMic) {
-      actionTriggeredWhileHolding = true;
-      return;
-    }
+  tm.on('turn_committed', (committedText) => {
     finalActionExecuted = true;
-    recordedFinalText = text;
-  };
+    recordedFinalText = committedText;
+  });
 
-  // User presses and holds button
-  isHoldingMic = true;
-  tm.startSession();
+  // User presses hold-to-speak and speaks part 1
+  tm.updateInterim("I want to sell 10 kg");
+  assert(tm.getState() === TurnState.LISTENING, "State is listening while holding");
+  assert(!finalActionExecuted, "No action executed while speech is interim");
 
-  // User speaks phrase 1 while holding
-  tm.onInterim("I have 10 kg");
-  tm.onFinal("I have 10 kg");
+  // User pauses 800ms while still holding button
+  tm.pauseSpeech();
+  assert(tm.getState() === TurnState.PAUSED_WAITING, "State enters PAUSED_WAITING on pause");
+  assert(!finalActionExecuted, "Hold-to-speak prevented premature turn commit during silence");
 
-  // User pauses for 350ms (longer than graceWindowMs of 200ms)
-  // Even if onSpeechStop is triggered, holding must suppress commit
-  if (!isHoldingMic) {
-    tm.onSpeechStop();
-  }
+  // User resumes speaking part 2 while still holding
+  tm.resumeSpeech("old laptops at good price");
+  assert(tm.getState() === TurnState.LISTENING, "Resumed speech returns to LISTENING");
+  assert(!finalActionExecuted, "Still holding - no premature commit");
 
-  // Wait 250ms to ensure no grace timer fired
-  await new Promise((r) => setTimeout(r, 250));
-  assert(!actionTriggeredWhileHolding, "No action should trigger while user is holding mic!");
-  assert(!finalActionExecuted, "Turn should not be completed while user is still holding!");
-
-  // User continues speaking phrase 2 while still holding
-  tm.onInterim("old laptops to sell");
-  tm.onFinal("old laptops to sell");
-
-  assert(!actionTriggeredWhileHolding, "Action still should NOT trigger during second speech segment");
-
-  // User releases button
-  isHoldingMic = false;
   const fullText = tm.getAccumulatedText();
   assert(fullText.includes("10 kg") && fullText.includes("old laptops"), `Accumulated text should contain full utterance: "${fullText}"`);
 
@@ -194,7 +177,7 @@ console.log("\n2. Testing Hold-To-Speak Concurrency (No Premature Actions While 
   tm.commitTurn();
   assert(finalActionExecuted, "Turn completed cleanly on release");
   assert(recordedFinalText.includes("10 kg old laptops"), `Executed with full phrase: "${recordedFinalText}"`);
-  console.log("  ✓ Hold-to-speak successfully prevented premature action and committed full utterance on release.");
+  console.log("  [PASS] Hold-to-speak successfully prevented premature action and committed full utterance on release.");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -217,7 +200,7 @@ console.log("\n3. Testing End-to-End Agent Workflows via VoiceAdapter...");
   assert(res?.preparedCard?.type === "LOT_PREPARATION", `Expected card type LOT_PREPARATION, got ${res?.preparedCard?.type}`);
   assert(res?.preparedCard?.weightKg === 15, `Expected 15 kg, got ${res?.preparedCard?.weightKg}`);
   assert(res?.preparedCard?.materialName?.toLowerCase().includes("laptop"), `Expected laptop, got ${res?.preparedCard?.materialName}`);
-  console.log("  ✓ Workflow 1 (Voice Lot Preparation): Success");
+  console.log("  [PASS] Workflow 1 (Voice Lot Preparation): Success");
 }
 
 // Workflow 2: Vernacular Price Inquiry & Negotiation
@@ -233,7 +216,7 @@ console.log("\n3. Testing End-to-End Agent Workflows via VoiceAdapter...");
   assert(res !== null, "VoiceAdapter returned result for negotiation");
   assert(res?.preparedCard?.type === "PRICE_NEGOTIATION", `Expected negotiation, got ${res?.preparedCard?.type}`);
   assert(res?.preparedCard?.targetPrice === 150, `Expected target price 150, got ${res?.preparedCard?.targetPrice}`);
-  console.log("  ✓ Workflow 2 (Vernacular Price Negotiation): Success");
+  console.log("  [PASS] Workflow 2 (Vernacular Price Negotiation): Success");
 }
 
 // Workflow 3: Photo Scanner Voice Trigger
@@ -247,7 +230,7 @@ console.log("\n3. Testing End-to-End Agent Workflows via VoiceAdapter...");
   });
 
   assert(res?.commandAction?.type === "START_CAMERA" || res?.navigateTo === "SCANNER", `Expected camera action, got ${res?.commandAction?.type}`);
-  console.log("  ✓ Workflow 3 (Voice Camera Trigger): Success");
+  console.log("  [PASS] Workflow 3 (Voice Camera Trigger): Success");
 }
 
 // Workflow 4: Receipts Inquiry
@@ -261,7 +244,7 @@ console.log("\n3. Testing End-to-End Agent Workflows via VoiceAdapter...");
   });
 
   assert(res?.navigateTo === "RECEIPT" || res?.navigateTo === "LOTS_LIST", `Expected navigation to receipts, got ${res?.navigateTo}`);
-  console.log("  ✓ Workflow 4 (Receipts & Settlement History): Success");
+  console.log("  [PASS] Workflow 4 (Receipts & Settlement History): Success");
 }
 
 // Workflow 5: Marathi Complex Scrap Utterance
@@ -276,7 +259,7 @@ console.log("\n3. Testing End-to-End Agent Workflows via VoiceAdapter...");
 
   assert(res !== null, "Returned result for Marathi battery inquiry");
   assert(res?.preparedCard?.materialName?.toLowerCase().includes("battery") || res?.preparedCard?.materialId === "batteries" || res?.preparedCard?.materialId === "lithium_batteries", "Recognized battery category");
-  console.log("  ✓ Workflow 5 (Marathi Vernacular Battery Inquiry): Success");
+  console.log("  [PASS] Workflow 5 (Marathi Vernacular Battery Inquiry): Success");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -305,7 +288,7 @@ for (const query of nonEWasteTests) {
   assert(res?.preparedCard?.type === "NON_EWASTE_REJECTED", `"${query}" must be rejected as NON_EWASTE_REJECTED, got ${res?.preparedCard?.type}`);
   assert(res?.spokenResponse?.length > 10, `Rejection must give clear vernacular explanation`);
 }
-console.log("  ✓ All non-e-waste items strictly rejected with clear explanation.");
+console.log("  [PASS] All non-e-waste items strictly rejected with clear explanation.");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FINAL SUMMARY

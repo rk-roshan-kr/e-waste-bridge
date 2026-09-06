@@ -23,30 +23,45 @@ export default function VoiceCalibrationModal({
   language = "en"
 }) {
   const [step, setStep] = useState("IDLE"); // IDLE | MEASURING_NOISE | SPEAKING | COMPLETED
-  const [ambientFloor, setAmbientFloor] = useState(calibration?.ambientFloor || 3);
-  const [voicePeak, setVoicePeak] = useState(calibration?.voicePeak || 25);
-  const [gain, setGain] = useState(calibration?.gain || 2.0);
+  const [ambientFloor, setAmbientFloor] = useState(calibration?.ambientFloor || 1);
+  const [voicePeak, setVoicePeak] = useState(calibration?.voicePeak || 28);
+  const [gain, setGain] = useState(calibration?.gain || 3.5);
   const [sensitivity, setSensitivity] = useState(calibration?.sensitivity || "high");
   const [countdown, setCountdown] = useState(0);
 
   // Calibration samples
   const noiseSamplesRef = useRef([]);
   const voiceSamplesRef = useRef([]);
+  const currentLevelRef = useRef(currentLevel);
+
+  useEffect(() => {
+    currentLevelRef.current = currentLevel;
+  }, [currentLevel]);
 
   useEffect(() => {
     if (!isOpen) {
       setStep("IDLE");
+    } else if (calibration) {
+      if (calibration.ambientFloor !== undefined) setAmbientFloor(calibration.ambientFloor);
+      if (calibration.voicePeak !== undefined) setVoicePeak(calibration.voicePeak);
+      if (calibration.gain !== undefined) setGain(calibration.gain);
+      if (calibration.sensitivity !== undefined) setSensitivity(calibration.sensitivity);
     }
-  }, [isOpen]);
+  }, [isOpen, calibration]);
 
-  // Calibration loop
+  // High-frequency active sampler during calibration phases (samples every 40ms)
   useEffect(() => {
-    if (step === "MEASURING_NOISE") {
-      noiseSamplesRef.current.push(currentLevel);
-    } else if (step === "SPEAKING") {
-      voiceSamplesRef.current.push(currentLevel);
-    }
-  }, [currentLevel, step]);
+    if (step !== "MEASURING_NOISE" && step !== "SPEAKING") return;
+    const sampler = setInterval(() => {
+      const lvl = currentLevelRef.current || 0;
+      if (step === "MEASURING_NOISE") {
+        noiseSamplesRef.current.push(lvl);
+      } else if (step === "SPEAKING") {
+        voiceSamplesRef.current.push(lvl);
+      }
+    }, 40);
+    return () => clearInterval(sampler);
+  }, [step]);
 
   const startAutoCalibration = () => {
     setStep("MEASURING_NOISE");
@@ -59,14 +74,12 @@ export default function VoiceCalibrationModal({
         if (prev <= 1) {
           clearInterval(noiseTimer);
           // Transition to speaking phase
+          const rawNoise = noiseSamplesRef.current.filter((n) => typeof n === "number" && !isNaN(n));
           const avgNoise =
-            noiseSamplesRef.current.length > 0
-              ? Math.round(
-                  noiseSamplesRef.current.reduce((a, b) => a + b, 0) /
-                    noiseSamplesRef.current.length
-                )
-              : 3;
-          setAmbientFloor(Math.max(1, avgNoise));
+            rawNoise.length > 0
+              ? Math.round(rawNoise.reduce((a, b) => a + b, 0) / rawNoise.length)
+              : 1;
+          setAmbientFloor(Math.max(0, avgNoise));
 
           setStep("SPEAKING");
           setCountdown(3);
@@ -76,19 +89,24 @@ export default function VoiceCalibrationModal({
               if (p <= 1) {
                 clearInterval(speakTimer);
                 // Compute results
+                const rawVoice = voiceSamplesRef.current.filter((n) => typeof n === "number" && !isNaN(n));
                 const maxVoice =
-                  voiceSamplesRef.current.length > 0
-                    ? Math.max(...voiceSamplesRef.current)
-                    : 22;
-                setVoicePeak(Math.max(avgNoise + 6, maxVoice));
+                  rawVoice.length > 0
+                    ? Math.max(...rawVoice)
+                    : Math.max(24, avgNoise + 14);
+                setVoicePeak(Math.max(avgNoise + 4, maxVoice));
 
-                // Auto-tune threshold
+                // Auto-tune threshold: dynamic knee point above room floor
                 const optimalThreshold = Math.max(
-                  4,
-                  Math.round(avgNoise + (maxVoice - avgNoise) * 0.25)
+                  2,
+                  Math.round(avgNoise + (maxVoice - avgNoise) * 0.22)
                 );
+                const dynamicGain = optimalThreshold <= 3 ? 3.5 : optimalThreshold <= 6 ? 2.2 : 1.4;
+                setGain(dynamicGain);
+                setSensitivity("custom");
+
                 const newCalib = {
-                  gain: 2.0,
+                  gain: dynamicGain,
                   sensitivity: "custom",
                   threshold: optimalThreshold,
                   ambientFloor: avgNoise,
@@ -113,14 +131,14 @@ export default function VoiceCalibrationModal({
     setSensitivity(presetName);
     let calib = {};
     if (presetName === "high") {
-      calib = { gain: 2.4, threshold: 4, sensitivity: "high" };
-      setGain(2.4);
+      calib = { gain: 3.5, threshold: 2, sensitivity: "high", ambientFloor: 1, voicePeak: 28 };
+      setGain(3.5);
     } else if (presetName === "balanced") {
-      calib = { gain: 1.8, threshold: 6, sensitivity: "balanced" };
-      setGain(1.8);
+      calib = { gain: 2.2, threshold: 5, sensitivity: "balanced", ambientFloor: 2, voicePeak: 25 };
+      setGain(2.2);
     } else {
-      calib = { gain: 1.2, threshold: 10, sensitivity: "noisy" };
-      setGain(1.2);
+      calib = { gain: 1.4, threshold: 9, sensitivity: "noisy", ambientFloor: 5, voicePeak: 22 };
+      setGain(1.4);
     }
     onSaveCalibration(calib);
   };
@@ -613,10 +631,10 @@ export default function VoiceCalibrationModal({
                         : "High Sensitivity (Recommended)",
                     desc:
                       language === "mr"
-                        ? "लॅपटॉप माइक किंवा हळू आवाजासाठी (२.४x बूस्ट)"
+                        ? "लॅपटॉप माइक किंवा हळू आवाजासाठी (३.५x बूस्ट)"
                         : language === "hi"
-                        ? "लैपटॉप माइक या धीमी आवाज के लिए (2.4x बूस्ट)"
-                        : "For laptop internal mics or soft speech (2.4x boost)"
+                        ? "लैपटॉप माइक या धीमी आवाज के लिए (3.5x बूस्ट)"
+                        : "For laptop internal mics or soft speech (3.5x boost)"
                   },
                   {
                     id: "balanced",
@@ -629,10 +647,10 @@ export default function VoiceCalibrationModal({
                         : "Balanced (Standard)",
                     desc:
                       language === "mr"
-                        ? "हेडसेट किंवा शांत खोलीसाठी (१.८x बूस्ट)"
+                        ? "हेडसेट किंवा शांत खोलीसाठी (२.२x बूस्ट)"
                         : language === "hi"
-                        ? "हेडसेट या शांत कमरे के लिए (1.8x बूस्ट)"
-                        : "For headsets or quiet rooms (1.8x boost)"
+                        ? "हेडसेट या शांत कमरे के लिए (2.2x बूस्ट)"
+                        : "For headsets or quiet rooms (2.2x boost)"
                   },
                   {
                     id: "noisy",
@@ -645,10 +663,10 @@ export default function VoiceCalibrationModal({
                         : "Noisy Room / Loud Fan",
                     desc:
                       language === "mr"
-                        ? "पंख्याचा आवाज जास्त असल्यास (१.२x बूस्ट)"
+                        ? "पंख्याचा आवाज जास्त असल्यास (१.४x बूस्ट)"
                         : language === "hi"
-                        ? "यदि पंखे या बाहर का शोर अधिक हो (1.2x बूस्ट)"
-                        : "Suppresses loud fans or street noise (1.2x boost)"
+                        ? "यदि पंखे या बाहर का शोर अधिक हो (1.4x बूस्ट)"
+                        : "Suppresses loud fans or street noise (1.4x boost)"
                   }
                 ].map((preset) => {
                   const isSel = sensitivity === preset.id;

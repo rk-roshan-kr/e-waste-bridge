@@ -1611,7 +1611,7 @@ Baseline Model: **100,000 Active Informal Collectors × 30 Transactions/Month**
    - Tap **`[Load Seed]`** to restore active enterprise demonstration data.
 3. **Inspect Field Research**: Tap **`[Research & Economics]`** to open the real field dossiers of Ramu Pawar and Santosh Shinde, complete with unit economics.
 4. **Test "Talk to Sell" Voice Hero**:
-   - In Collector Home, tap the **`[✨ Test]`** chip on the voice hero card to simulate voice input instantly.
+   - In Collector Home, tap the **`[Simulate Voice]`** chip on the voice hero card to simulate voice input instantly.
    - Or tap the mic orb and speak: *"I have 10 kg old laptops to sell"*, *"१० किलो लॅपटॉप विकायचा आहे"*, or *"10 kg battery bechna hai"*.
 5. **Verify Scrap Bhav & Safety Guidance**:
    - Tap **`[Scrap Bhav]`** to view live benchmark rates, spoken audio readouts, and 7-day price trends.

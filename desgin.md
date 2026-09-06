@@ -65,9 +65,9 @@ Create a lot
 
 Today's opportunities
 
-📱 Mobile phones        ₹380/kg
-💻 Laptops               ₹210/kg
-🔋 Batteries             ₹95/kg
+[Mobile phones]       ₹380/kg
+[Laptops]             ₹210/kg
+[Batteries]           ₹95/kg
 
 ────────────────────────
 
@@ -145,12 +145,12 @@ Recycler cards can enter based on ranking:
 ```text
 BEST MATCH
 ────────────────
-♻ ABC Recycling
+[Recycler] ABC Recycling
 
 ₹ 1,280 estimated value
 3.2 km
 Pickup available
-Authorized ✓
+Authorized [Verified]
 ```
 
 As the user changes:
@@ -182,7 +182,7 @@ PAYMENT RECEIVED
 At completion:
 
 ```text
-✓ ₹1,280 RECEIVED
+[PAID] ₹1,280 RECEIVED
 
 Lot #EW-2041
 Trace ID: 8F42...
