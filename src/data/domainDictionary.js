@@ -42,10 +42,17 @@ export const DomainDictionary = Object.freeze({
       hazardous: false
     },
     {
-      patterns: [/\bcopper wire\b/i, /\btaar\b/i, /\bcable\b/i, /\btambe ka taar\b/i],
+      patterns: [/\bcopper wire\b/i, /\btaar\b/i, /\bcable\b/i, /\btambe ka taar\b/i, /तांबा/i, /तांबे/i, /तांबं/i, /कॉपर/i],
       canonicalEntity: 'COPPER_CABLE',
       cpcbCode: 'CABLE-CU',
       defaultRatePerKg: 520,
+      hazardous: false
+    },
+    {
+      patterns: [/\bbrass\b/i, /\bpeetal\b/i, /\bpital\b/i, /पीतल/i, /पितळ/i],
+      canonicalEntity: 'BRASS_SECONDARY',
+      cpcbCode: 'METAL-BRASS',
+      defaultRatePerKg: 380,
       hazardous: false
     },
     {

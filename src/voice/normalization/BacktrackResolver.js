@@ -8,7 +8,7 @@ import { DomainDictionary } from '../../data/domainDictionary.js';
 
 export class BacktrackResolver {
   constructor() {
-    this.backtrackMarkers = /\b(actually|nahi|no|badal kar|sorry|woh nahi|dus nahi|nahi nahi|wait)\b/i;
+    this.backtrackMarkers = /(?:\b(?:actually|nahi|no|badal kar|sorry|woh nahi|dus nahi|nahi nahi|wait)\b|(?:नहीं\s*नहीं|नाही\s*नाही|नहीं|नाही|नको|रुको|थांबा|सॉरी))/iu;
   }
 
   resolve(text) {
