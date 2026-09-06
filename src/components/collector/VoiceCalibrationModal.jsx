@@ -22,17 +22,23 @@ export default function VoiceCalibrationModal({
   onSaveCalibration,
   language = "en"
 }) {
-  const [step, setStep] = useState("IDLE"); // IDLE | MEASURING_NOISE | SPEAKING | COMPLETED
+  const [step, setStep] = useState("IDLE"); // IDLE | MEASURING_NOISE | PREPARING | SPEAKING | COMPLETED
   const [ambientFloor, setAmbientFloor] = useState(calibration?.ambientFloor || 1);
   const [voicePeak, setVoicePeak] = useState(calibration?.voicePeak || 28);
   const [gain, setGain] = useState(calibration?.gain || 3.5);
   const [sensitivity, setSensitivity] = useState(calibration?.sensitivity || "high");
   const [countdown, setCountdown] = useState(0);
 
-  // Calibration samples
+  // Calibration samples & timers
   const noiseSamplesRef = useRef([]);
   const voiceSamplesRef = useRef([]);
   const currentLevelRef = useRef(currentLevel);
+  const activeTimersRef = useRef([]);
+
+  const clearAllTimers = () => {
+    activeTimersRef.current.forEach((t) => clearInterval(t));
+    activeTimersRef.current = [];
+  };
 
   useEffect(() => {
     currentLevelRef.current = currentLevel;
@@ -40,6 +46,7 @@ export default function VoiceCalibrationModal({
 
   useEffect(() => {
     if (!isOpen) {
+      clearAllTimers();
       setStep("IDLE");
     } else if (calibration) {
       if (calibration.ambientFloor !== undefined) setAmbientFloor(calibration.ambientFloor);
@@ -47,6 +54,7 @@ export default function VoiceCalibrationModal({
       if (calibration.gain !== undefined) setGain(calibration.gain);
       if (calibration.sensitivity !== undefined) setSensitivity(calibration.sensitivity);
     }
+    return () => clearAllTimers();
   }, [isOpen, calibration]);
 
   // High-frequency active sampler during calibration phases (samples every 40ms)
@@ -64,16 +72,18 @@ export default function VoiceCalibrationModal({
   }, [step]);
 
   const startAutoCalibration = () => {
+    clearAllTimers();
+    // Step 1: 3s of silence measurement
     setStep("MEASURING_NOISE");
     noiseSamplesRef.current = [];
     voiceSamplesRef.current = [];
-    setCountdown(2);
+    setCountdown(3);
 
     const noiseTimer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(noiseTimer);
-          // Transition to speaking phase
+          // Compute ambient noise floor from 3s silence
           const rawNoise = noiseSamplesRef.current.filter((n) => typeof n === "number" && !isNaN(n));
           const avgNoise =
             rawNoise.length > 0
@@ -81,53 +91,73 @@ export default function VoiceCalibrationModal({
               : 1;
           setAmbientFloor(Math.max(0, avgNoise));
 
-          setStep("SPEAKING");
-          setCountdown(3);
+          // Step 2: Gap of 2s in between silence and speaking
+          setStep("PREPARING");
+          setCountdown(2);
 
-          const speakTimer = setInterval(() => {
-            setCountdown((p) => {
-              if (p <= 1) {
-                clearInterval(speakTimer);
-                // Compute results
-                const rawVoice = voiceSamplesRef.current.filter((n) => typeof n === "number" && !isNaN(n));
-                const maxVoice =
-                  rawVoice.length > 0
-                    ? Math.max(...rawVoice)
-                    : Math.max(24, avgNoise + 14);
-                setVoicePeak(Math.max(avgNoise + 4, maxVoice));
+          const prepTimer = setInterval(() => {
+            setCountdown((prepPrev) => {
+              if (prepPrev <= 1) {
+                clearInterval(prepTimer);
 
-                // Auto-tune threshold: dynamic knee point above room floor
-                const optimalThreshold = Math.max(
-                  2,
-                  Math.round(avgNoise + (maxVoice - avgNoise) * 0.22)
-                );
-                const dynamicGain = optimalThreshold <= 3 ? 3.5 : optimalThreshold <= 6 ? 2.2 : 1.4;
-                setGain(dynamicGain);
-                setSensitivity("custom");
+                // Step 3: 10s for vocal peak measurement
+                setStep("SPEAKING");
+                setCountdown(10);
 
-                const newCalib = {
-                  gain: dynamicGain,
-                  sensitivity: "custom",
-                  threshold: optimalThreshold,
-                  ambientFloor: avgNoise,
-                  voicePeak: maxVoice
-                };
-                onSaveCalibration(newCalib);
-                setStep("COMPLETED");
+                const speakTimer = setInterval(() => {
+                  setCountdown((p) => {
+                    if (p <= 1) {
+                      clearInterval(speakTimer);
+                      // Compute results after 10s vocal peak measurement
+                      const rawVoice = voiceSamplesRef.current.filter((n) => typeof n === "number" && !isNaN(n));
+                      const maxVoice =
+                        rawVoice.length > 0
+                          ? Math.max(...rawVoice)
+                          : Math.max(24, avgNoise + 14);
+                      setVoicePeak(Math.max(avgNoise + 4, maxVoice));
+
+                      // Auto-tune threshold: dynamic knee point above room floor
+                      const optimalThreshold = Math.max(
+                        2,
+                        Math.round(avgNoise + (maxVoice - avgNoise) * 0.22)
+                      );
+                      const dynamicGain = optimalThreshold <= 3 ? 3.5 : optimalThreshold <= 6 ? 2.2 : 1.4;
+                      setGain(dynamicGain);
+                      setSensitivity("custom");
+
+                      const newCalib = {
+                        gain: dynamicGain,
+                        sensitivity: "custom",
+                        threshold: optimalThreshold,
+                        ambientFloor: avgNoise,
+                        voicePeak: maxVoice
+                      };
+                      onSaveCalibration(newCalib);
+                      setStep("COMPLETED");
+                      return 0;
+                    }
+                    return p - 1;
+                  });
+                }, 1000);
+                activeTimersRef.current.push(speakTimer);
+
                 return 0;
               }
-              return p - 1;
+              return prepPrev - 1;
             });
           }, 1000);
+          activeTimersRef.current.push(prepTimer);
 
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
+    activeTimersRef.current.push(noiseTimer);
   };
 
   const applyPreset = (presetName) => {
+    clearAllTimers();
     setSensitivity(presetName);
     let calib = {};
     if (presetName === "high") {
@@ -415,10 +445,10 @@ export default function VoiceCalibrationModal({
                     }}
                   >
                     {language === "mr"
-                      ? "हे तुमच्या खोलीचा आवाज आणि तुमच्या बोलण्याचा आवाज मोजून परिपूर्ण सेटिंग करेल."
+                      ? "३ सेकंद शांतता, २ सेकंद तयारी आणि १० सेकंद बोलण्याचा आवाज मोजून परिपूर्ण सेटिंग करेल."
                       : language === "hi"
-                      ? "यह आपके कमरे की शांति और आपकी आवाज को मापकर एकदम सही सेटिंग तय करेगा।"
-                      : "Measures your background room noise and voice volume to set the optimal speech trigger."}
+                      ? "3 सेकंड शांति, 2 सेकंड तैयारी और 10 सेकंड आवाज मापकर सटीक सेटिंग तय करेगा।"
+                      : "Measures 3s room silence, gives a 2s preparation gap, then samples 10s of natural speech."}
                   </p>
                   <button
                     type="button"
@@ -484,10 +514,56 @@ export default function VoiceCalibrationModal({
                     }}
                   >
                     {language === "mr"
-                      ? "कृपया शांत राहा... खोलीचा आवाज मोजत आहे"
+                      ? "शांत राहा (३ सेकंद)... खोलीचा आवाज मोजत आहे"
                       : language === "hi"
-                      ? "कृपया शांत रहें... कमरे का बैकग्राउंड साउंड माप रहे हैं"
-                      : "Stay quiet... measuring ambient room noise"}
+                      ? "कृपया शांत रहें (3 सेकंड)... कमरे का बैकग्राउंड साउंड माप रहे हैं"
+                      : "Stay quiet (3s)... measuring ambient room noise"}
+                  </div>
+                </div>
+              )}
+
+              {step === "PREPARING" && (
+                <div style={{ textAlign: "center", padding: "8px 0" }}>
+                  <motion.div
+                    animate={{ scale: [1, 1.12, 1] }}
+                    transition={{ repeat: Infinity, duration: 0.9 }}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 44,
+                      height: 44,
+                      borderRadius: "50%",
+                      background: "rgba(212, 255, 40, 0.2)",
+                      border: "1px solid rgba(212, 255, 40, 0.4)",
+                      margin: "0 auto 6px auto"
+                    }}
+                  >
+                    <Activity size={22} color="var(--graphite)" />
+                  </motion.div>
+                  <div
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 900,
+                      color: "var(--graphite)",
+                      fontFamily: "var(--font-mono)"
+                    }}
+                  >
+                    {countdown}s
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 800,
+                      color: "var(--graphite)",
+                      marginTop: 3
+                    }}
+                  >
+                    {language === "mr"
+                      ? "तयार व्हा... (२ सेकंद)"
+                      : language === "hi"
+                      ? "बोलने के लिए तैयार हो जाएं (2 सेकंड)..."
+                      : "Get ready to speak (2s)..."}
                   </div>
                 </div>
               )}
@@ -537,10 +613,10 @@ export default function VoiceCalibrationModal({
                     }}
                   >
                     {language === "mr"
-                      ? "आता बोला: '१० किलो लॅपटॉप विकायचे आहेत'"
+                      ? "आता मोकळेपणाने बोला (१० सेकंद): '१० किलो लॅपटॉप विकायचे आहेत'"
                       : language === "hi"
-                      ? "अब बोलिए: '10 किलो लैपटॉप बेचना है'"
-                      : "Now speak naturally: '10 kg laptop to sell'"}
+                      ? "स्वाभाविक रूप से बोलिए (10 सेकंड): '10 किलो लैपटॉप बेचना है' या स्क्रैप बताएं"
+                      : "Speak naturally (10s): '10 kg laptop to sell' or describe your scrap"}
                   </div>
                 </div>
               )}
