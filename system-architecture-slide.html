@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Architecture - E-Waste Bridge (SIH 2026 PS2)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #0b0f19;
+      color: #0f172a;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 18px;
+    }
+
+    /* Floating Action Bar (Hidden during headless render, reveals on hover) */
+    .action-bar {
+      position: fixed;
+      top: 12px;
+      right: 24px;
+      display: flex;
+      gap: 10px;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(12px);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    body:hover .action-bar {
+      opacity: 1;
+    }
+
+    .btn {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 9999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    /* 16:9 Canvas Container */
+    .slide-wrapper {
+      width: 1920px;
+      height: 1080px;
+      position: relative;
+      background: #ffffff;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Topographic background contour lines */
+    .topo-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.35;
+      z-index: 1;
+    }
+
+    /* Slide Header */
+    .slide-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 46px 8px 46px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 340px;
+    }
+
+    .logo-badge {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.22);
+    }
+
+    .logo-badge svg {
+      width: 28px;
+      height: 28px;
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .team-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .team-hackathon {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #2563eb;
+      text-transform: uppercase;
+    }
+
+    .team-name {
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: 2.2px;
+      color: #0f172a;
+      text-transform: uppercase;
+    }
+
+    .header-center {
+      text-align: center;
+    }
+
+    .main-title {
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      font-size: 46px;
+      font-weight: 900;
+      letter-spacing: 7px;
+      color: #0f172a;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+      width: 340px;
+    }
+
+    .sih-text {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+    }
+
+    .sih-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      color: #0f172a;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
+    .sih-subtitle {
+      font-size: 11px;
+      font-weight: 700;
+      color: #ea580c;
+      letter-spacing: 1.2px;
+    }
+
+    .sih-emblem {
+      width: 48px;
+      height: 48px;
+      position: relative;
+    }
+
+    /* Asymmetric 4-Pillar Grid: Harmonized horizontal alignment */
+    .content-area {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 300px 320px 752px 360px;
+      gap: 32px;
+      padding: 12px 46px 14px 46px;
+    }
+
+    /* Pillar Column */
+    .pillar-col {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .pillar-header {
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 6px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    /* Pillar Themes */
+    .pillar-blue .pillar-header {
+      color: #1d4ed8;
+      background: rgba(219, 234, 254, 0.7);
+      border: 1px solid #bfdbfe;
+    }
+
+    .pillar-purple .pillar-header {
+      color: #7e22ce;
+      background: rgba(243, 232, 255, 0.7);
+      border: 1px solid #e9d5ff;
+    }
+
+    .pillar-orange .pillar-header {
+      color: #c2410c;
+      background: rgba(254, 237, 213, 0.7);
+      border: 1px solid #fed7aa;
+    }
+
+    .pillar-green .pillar-header {
+      color: #15803d;
+      background: rgba(220, 252, 231, 0.7);
+      border: 1px solid #bbf7d0;
+    }
+
+    /* Wide Landscape Card Styling */
+    .card {
+      border-radius: 18px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    /* Card Themes */
+    .card-blue {
+      border: 2px solid #2563eb;
+      background: #f4f8ff;
+    }
+
+    .card-purple {
+      border: 2px solid #7c3aed;
+      background: #faf6ff;
+    }
+
+    .card-orange {
+      border: 2px solid #ea580c;
+      background: #fff8f3;
+    }
+
+    .card-green {
+      border: 2px solid #16a34a;
+      background: #f2fbf5;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .card-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.3px;
+      line-height: 1.25;
+      text-transform: uppercase;
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 6px;
+      font-style: italic;
+    }
+
+    .card-body {
+      font-size: 11px;
+      color: #1e293b;
+      line-height: 1.45;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .param-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .param-bullet {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #64748b;
+      flex-shrink: 0;
+    }
+
+    .math-expr {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1px 5px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: #0f172a;
+      display: inline-block;
+    }
+
+    .badge-accent {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    /* Pillar 3 Sub-Grids for Wide Landscape Layout */
+    .pillar-split-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .pillar-split-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Fixed Height Tuning to ensure Wide Aspect Ratio */
+    .pillar-blue .card {
+      min-height: 240px;
+      justify-content: center;
+    }
+
+    .pillar-purple .card {
+      min-height: 155px;
+      justify-content: center;
+    }
+
+    .pillar-orange .card-wide {
+      min-height: 130px;
+      justify-content: center;
+    }
+
+    .pillar-orange .card-split {
+      min-height: 140px;
+      justify-content: center;
+    }
+
+    .pillar-green .card {
+      min-height: 240px;
+      justify-content: center;
+    }
+
+    /* SVG Connecting Arrows Overlay */
+    .arrows-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Footer Tech Stack Floating Pill */
+    .slide-footer {
+      position: relative;
+      z-index: 10;
+      padding: 0 46px 18px 46px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .tech-pill-container {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+      border-radius: 9999px;
+      padding: 7px 36px;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      border: 1.5px solid rgba(226, 232, 240, 0.95);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .tech-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tech-icon {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tech-name {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #334155;
+      letter-spacing: 0.2px;
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        background: #ffffff;
+      }
+      .action-bar {
+        display: none !important;
+      }
+      .slide-wrapper {
+        box-shadow: none;
+        max-width: 100%;
+        max-height: 100%;
+        width: 100vw;
+        height: 56.25vw;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Action Bar -->
+  <div class="action-bar">
+    <button class="btn btn-secondary" onclick="window.print()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+      Print / Save as PDF
+    </button>
+    <button class="btn btn-secondary" onclick="toggleFullscreen()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+      Present Fullscreen
+    </button>
+  </div>
+
+  <!-- 16:9 Slide Presentation Frame -->
+  <div class="slide-wrapper" id="slideFrame">
+
+    <!-- Topographic Background Contour Watermark -->
+    <svg class="topo-bg" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M-50,180 C300,100 600,300 960,160 C1320,20 1600,220 1980,100" stroke="#cbd5e1" stroke-width="1.2" />
+      <path d="M-50,300 C350,200 650,420 1020,270 C1380,130 1680,340 2000,230" stroke="#cbd5e1" stroke-width="1.2" />
+      <path d="M-50,430 C380,330 720,540 1100,400 C1450,260 1720,460 2020,360" stroke="#cbd5e1" stroke-width="1.2" />
+      <path d="M-50,580 C420,480 780,680 1180,540 C1520,400 1780,600 2050,500" stroke="#cbd5e1" stroke-width="1.2" />
+      <path d="M-50,730 C450,630 820,830 1240,690 C1590,550 1820,740 2080,660" stroke="#cbd5e1" stroke-width="1.2" />
+      <path d="M-50,880 C480,780 880,960 1300,830 C1650,700 1880,880 2100,800" stroke="#cbd5e1" stroke-width="1.2" />
+      <ellipse cx="960" cy="540" rx="720" ry="360" stroke="#f1f5f9" stroke-width="1.5" />
+    </svg>
+
+    <!-- Slide Header -->
+    <header class="slide-header">
+      <div class="header-left">
+        <div class="logo-badge">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="team-info">
+          <span class="team-hackathon">TEKATHON 5.0 / SIH PS2</span>
+          <span class="team-name">E-WASTE BRIDGE</span>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <h1 class="main-title">SYSTEM ARCHITECTURE</h1>
+      </div>
+
+      <div class="header-right">
+        <div class="sih-text">
+          <span class="sih-title">SMART INDIA HACKATHON</span>
+          <span class="sih-subtitle">2026 OFFICIAL PROTOTYPE</span>
+        </div>
+        <div class="sih-emblem">
+          <svg viewBox="0 0 48 48" width="48" height="48">
+            <circle cx="24" cy="24" r="22" fill="none" stroke="#ea580c" stroke-width="2" />
+            <path d="M16 24 C16 19.5 19.5 16 24 16 C28.5 16 32 19.5 32 24 C32 28.5 28.5 32 24 32" stroke="#15803d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="24" cy="24" r="4" fill="#2563eb" />
+            <line x1="24" y1="10" x2="24" y2="14" stroke="#ea580c" stroke-width="2" />
+            <line x1="24" y1="34" x2="24" y2="38" stroke="#15803d" stroke-width="2" />
+            <line x1="10" y1="24" x2="14" y2="24" stroke="#ea580c" stroke-width="2" />
+            <line x1="34" y1="24" x2="38" y2="24" stroke="#15803d" stroke-width="2" />
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- 4-Pillar Grid Content (Wider Pillar 3 to match the friend's block positions) -->
+    <main class="content-area">
+
+      <!-- ================================================================= -->
+      <!-- PILLAR 1: SENSING & REAL-TIME AUDIO INTAKE (BLUE) - 2 WIDE BLOCKS -->
+      <!-- ================================================================= -->
+      <section class="pillar-col pillar-blue">
+        <div class="pillar-header">SENSING & REAL-TIME AUDIO INGESTION</div>
+
+        <!-- Block 1 -->
+        <div class="card card-blue" id="node-c1">
+          <div class="card-title-row">
+            <h2 class="card-title">1. PHONE AUDIO & GAIN</h2>
+          </div>
+          <div class="card-subtitle">(Web Audio API MediaStreamSource)</div>
+          <div class="card-body">
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span><span class="math-expr">u(t) &isin; &Ropf;<sup>128</sup></span> (128-pt Time Domain FFT)</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>GainNode: <span class="math-expr">1.4&times; &ndash; 3.5&times; dynamic boost</span></span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span><span class="math-expr">RMS = min(100, round(rms &times; 650))</span> @ 25Hz</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Hardware Echo Cancellation & Noise Gate</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block 2 -->
+        <div class="card card-blue" id="node-c2">
+          <div class="card-title-row">
+            <h2 class="card-title">2. 3-PHASE CALIBRATION & VAD</h2>
+          </div>
+          <div class="card-subtitle">(Adaptive Floor + Anti-Interruption Lock)</div>
+          <div class="card-body">
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>P1 Silence (3s) &bull; P2 Gap (2s) &bull; P3 Peak (10s)</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span><span class="math-expr">&tau; = max(2, round(floor + (peak-floor)&times;0.22))</span></span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span><span class="math-expr">LISTEN &harr; PAUSED &rarr; PROCESS</span> (&Delta;t &ge; 450ms)</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Physical Hold Gate: Suppresses premature commit</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- PILLAR 2: VERNACULAR NLP & AI AGENT CORE (PURPLE) - 3 WIDE BLOCKS -->
+      <!-- ================================================================= -->
+      <section class="pillar-col pillar-purple">
+        <div class="pillar-header">VERNACULAR NLP & AI AGENT CORE</div>
+
+        <!-- Block 3 -->
+        <div class="card card-purple" id="node-c3">
+          <div class="card-title-row">
+            <h2 class="card-title">3. SPEECH NORMALIZATION NET</h2>
+          </div>
+          <div class="card-subtitle">(Disfluency Stripper + Backtracking Repair)</div>
+          <div class="card-body">
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Strips 'um', 'matlab', 'uh', 'arre' filler</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>'10 kg nahi nahi 12 kg' &rarr; <span class="math-expr">12kg</span></span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Fractions: dhai &rarr; <span class="math-expr">2.5</span>, dedh &rarr; <span class="math-expr">1.5</span>, sawa &rarr; <span class="math-expr">+0.25</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block 4 -->
+        <div class="card card-purple" id="node-c4">
+          <div class="card-title-row">
+            <h2 class="card-title">4. MULTILINGUAL SCRIPT ROUTER</h2>
+          </div>
+          <div class="card-subtitle">(Tri-Lingual Zero-Latency Classifier)</div>
+          <div class="card-body">
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Tri-lingual: Hindi (hi) / Marathi (mr) / Eng (en)</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Unicode Regex Router (Devanagari vs Latin)</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Collector dialect persistence in session context</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block 5 -->
+        <div class="card card-purple" id="node-c5">
+          <div class="card-title-row">
+            <h2 class="card-title">5. INTENT & DEICTIC FUSION</h2>
+          </div>
+          <div class="card-subtitle">(VoiceAdapter Single Gateway Router)</div>
+          <div class="card-body">
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>CREATE_LOT, PRICE_INQUIRY, EARNINGS</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Deictic: 'Beech wala' &rarr; <span class="math-expr">Index 1</span></span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>'Sabse achha wala' &rarr; <span class="math-expr">max(Net Payout)</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- PILLAR 3: CPCB POLICY & REVERSE LOGISTICS (ORANGE) - SPLIT GRID -->
+      <!-- Blocks 6 & 7 (top) | Block 8 (mid) | Blocks 9, 9A, 9B (bottom) -->
+      <!-- ================================================================= -->
+      <section class="pillar-col pillar-orange">
+        <div class="pillar-header">CPCB POLICY & REVERSE LOGISTICS</div>
+
+        <!-- Top Row: 6 & 7 Side-by-Side -->
+        <div class="pillar-split-row-2">
+          
+          <!-- Block 6 -->
+          <div class="card card-orange card-split" id="node-c6">
+            <div class="card-title-row">
+              <h2 class="card-title">6. CPCB STATUTORY TAXONOMY</h2>
+            </div>
+            <div class="card-subtitle">(Non-E-Waste Statutory Guardrail)</div>
+            <div class="card-body">
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Rejection: Vegetables, Raddi, Steel, Cloth</span>
+              </div>
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Slang Mapping: 'laptop ka maal' &rarr; <span class="math-expr">ITEW2</span></span>
+              </div>
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Mandatory CPCB Schedule I/II classification</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Block 7 -->
+          <div class="card card-orange card-split" id="node-c7">
+            <div class="card-title-row">
+              <h2 class="card-title">7. HAZARD & SMELTING BLOCK</h2>
+            </div>
+            <div class="card-subtitle">(Statutory Environmental Interceptor)</div>
+            <div class="card-body">
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Lithium Swelling Fire Hazard Interception</span>
+              </div>
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Acid Leaching & Cable Burning Intercept</span>
+              </div>
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Informal toxic processing statutory lockout</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Middle Row: 8 Dynamic 3-Bidder Reverse Logistics (Wide) -->
+        <div class="card card-orange card-wide" id="node-c8">
+          <div class="card-title-row">
+            <h2 class="card-title">8. DYNAMIC 3-BIDDER REVERSE LOGISTICS</h2>
+          </div>
+          <div class="card-subtitle">(Live Competitive Tender & Route Matrix Optimization)</div>
+          <div class="card-body">
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>3 Authorized Recyclers: GreenTech / Apex / EcoGreen live competitive bidding</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Haversine Matrix: <span class="math-expr">d &le; 15 km</span> nearest facility routing lookup</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Payout: <span class="math-expr">Net Payout = Gross Bid &minus; Logistics Cost &minus; Platform Fee</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Row: 9, 9A, 9B Side-by-Side -->
+        <div class="pillar-split-row-3">
+
+          <!-- Block 9 -->
+          <div class="card card-orange card-split" id="node-c9">
+            <div class="card-title-row">
+              <h2 class="card-title">9. HIGH-VALUE GATE</h2>
+            </div>
+            <div class="card-subtitle">(Anti-Smuggling Lock)</div>
+            <div class="card-body">
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Threshold: <span class="math-expr">&ge; &#x20B9;1,00,000</span></span>
+              </div>
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>5,000ms Touch-and-Hold</span>
+              </div>
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Release &lt; 5s &rarr; Abort</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Block 9A -->
+          <div class="card card-orange card-split" id="node-c9a">
+            <div class="card-title-row">
+              <h2 class="card-title">9A. CPCB FORM 6 MANIFEST</h2>
+            </div>
+            <div class="card-subtitle">(Traceability & EPR)</div>
+            <div class="card-body">
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>QR Code Traceability Pass</span>
+              </div>
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Chain of Custody Timestamp</span>
+              </div>
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>EPR Green Credit Generation</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Block 9B -->
+          <div class="card card-orange card-split" id="node-c9b">
+            <div class="card-title-row">
+              <h2 class="card-title">9B. OFFLINE FIELD QUEUE</h2>
+            </div>
+            <div class="card-subtitle">(Resilient Edge Sync)</div>
+            <div class="card-body">
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Encrypted SQLite Cache</span>
+              </div>
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Zero data-loss field storage</span>
+              </div>
+              <div class="param-line">
+                <span class="param-bullet"></span>
+                <span>Auto-sync upon reconnection</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- PILLAR 4: STATE MACHINE, LEDGER & SWEET TTS (GREEN) - 2 WIDE BLOCKS -->
+      <!-- ================================================================= -->
+      <section class="pillar-col pillar-green">
+        <div class="pillar-header">STATE MACHINE, LEDGER & SWEET TTS</div>
+
+        <!-- Block 10 -->
+        <div class="card card-green" id="node-c10">
+          <div class="card-title-row">
+            <h2 class="card-title">10. LOT STATE MACHINE & LEDGER</h2>
+          </div>
+          <div class="card-subtitle">(LotStore FSM + Real-Time Telemetry)</div>
+          <div class="card-body">
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span><span class="math-expr">DRAFT &rarr; QUOTED &rarr; ACCEPTED &rarr; SETTLED</span></span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Sync: <span class="math-expr">monthlyEarnings, monthlyWeight</span></span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Pending Dues: <span class="math-expr">&sum;(unsettled active lots)</span></span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Instant cash disbursement upon physical intake</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block 11 -->
+        <div class="card card-green" id="node-c11">
+          <div class="card-title-row">
+            <h2 class="card-title">11. SWEET FEMALE VERNACULAR TTS</h2>
+          </div>
+          <div class="card-subtitle">(Warm Loving Speech Synthesis Engine)</div>
+          <div class="card-body">
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>L1: AI4Bharat IndicF5 Studio Bank (0ms cache hit)</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>L2: Microsoft Swara (hi) / Aarohi (mr) / Neerja (en)</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Filter: <span class="math-expr">isMaleVoice() === false</span> (Strict exclusion)</span>
+            </div>
+            <div class="param-line">
+              <span class="param-bullet"></span>
+              <span>Prosody: <span class="math-expr">pitch:1.16, rate:0.88, vol:1.0</span> &bull; Barge-in</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- SVG Connecting Arrows Overlay Canvas (Spans full 1920x1080 slide) -->
+    <svg class="arrows-svg" id="arrowsLayer" viewBox="0 0 1920 1080">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#1e293b" />
+        </marker>
+        <marker id="arrow-dashed" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b" />
+        </marker>
+      </defs>
+    </svg>
+
+    <!-- Slide Footer: Floating Tech Stack Bar -->
+    <footer class="slide-footer">
+      <div class="tech-pill-container">
+        
+        <!-- React -->
+        <div class="tech-item">
+          <div class="tech-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <ellipse cx="12" cy="12" rx="11" ry="4.2" fill="none" stroke="#06b6d4" stroke-width="1.8" transform="rotate(0 12 12)" />
+              <ellipse cx="12" cy="12" rx="11" ry="4.2" fill="none" stroke="#06b6d4" stroke-width="1.8" transform="rotate(60 12 12)" />
+              <ellipse cx="12" cy="12" rx="11" ry="4.2" fill="none" stroke="#06b6d4" stroke-width="1.8" transform="rotate(120 12 12)" />
+              <circle cx="12" cy="12" r="2.2" fill="#06b6d4" />
+            </svg>
+          </div>
+          <span class="tech-name">React 19</span>
+        </div>
+
+        <!-- Vite -->
+        <div class="tech-item">
+          <div class="tech-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <path d="M12 2L3 7l9 15 9-15-9-5z" fill="#8b5cf6" opacity="0.3"/>
+              <path d="M13 2.5L4 7.5l8 13.5 8-13.5-7-4.5z" fill="none" stroke="#8b5cf6" stroke-width="2"/>
+              <path d="M13 3l-4 9h4l-2 8 8-11h-5l3-6z" fill="#eab308"/>
+            </svg>
+          </div>
+          <span class="tech-name">Vite</span>
+        </div>
+
+        <!-- Web Audio API -->
+        <div class="tech-item">
+          <div class="tech-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <rect x="2" y="9" width="3" height="6" rx="1.5" fill="#2563eb" />
+              <rect x="7" y="5" width="3" height="14" rx="1.5" fill="#2563eb" />
+              <rect x="12" y="2" width="3" height="20" rx="1.5" fill="#2563eb" />
+              <rect x="17" y="6" width="3" height="12" rx="1.5" fill="#2563eb" />
+              <rect x="22" y="10" width="3" height="4" rx="1.5" fill="#2563eb" />
+            </svg>
+          </div>
+          <span class="tech-name">Web Audio API</span>
+        </div>
+
+        <!-- TypeScript -->
+        <div class="tech-item">
+          <div class="tech-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <rect x="2" y="2" width="20" height="20" rx="4" fill="#3178c6" />
+              <path d="M7 9h6M10 9v9M15 13.5c.8-.8 2.2-.8 2.2.3 0 1.5-2.2 1.2-2.2 2.7 0 .8 1 1.2 2 1" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="tech-name">TypeScript</span>
+        </div>
+
+        <!-- Python & IndicF5 -->
+        <div class="tech-item">
+          <div class="tech-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <path d="M12 2C6.5 2 7 4.5 7 4.5V7h5v1.5H5.5S2 8.2 2 13.5s3 5 3 5H7v-2.5s-.2-3 3-3h5s2.8.2 2.8-2.8V4.8S18 2 12 2zm-2.2 2.2a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" fill="#366a96"/>
+              <path d="M12 22c5.5 0 5-2.5 5-2.5V17h-5v-1.5h6.5s3.5.3 3.5-5-3-5-3-5H17v2.5s.2 3-3 3H9s-2.8-.2-2.8 2.8v5.4S6 22 12 22zm2.2-2.2a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" fill="#f5c234"/>
+            </svg>
+          </div>
+          <span class="tech-name">Python / IndicF5</span>
+        </div>
+
+        <!-- Node.js -->
+        <div class="tech-item">
+          <div class="tech-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <path d="M12 2l8.5 5v10L12 22 3.5 17V7L12 2z" fill="#22c55e" opacity="0.2"/>
+              <path d="M12 2l8.5 5v10L12 22 3.5 17V7L12 2z" fill="none" stroke="#16a34a" stroke-width="2"/>
+              <circle cx="12" cy="12" r="3" fill="#16a34a"/>
+            </svg>
+          </div>
+          <span class="tech-name">Node.js</span>
+        </div>
+
+        <!-- GitHub -->
+        <div class="tech-item">
+          <div class="tech-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="#181717">
+              <path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.5 2.87 8.31 6.84 9.66.5.1.68-.22.68-.49v-1.72c-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.1-.66.35-1.11.63-1.37-2.22-.26-4.56-1.13-4.56-5.04 0-1.11.39-2.02 1.03-2.73-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05.8-.23 1.66-.34 2.51-.34.85 0 1.71.11 2.51.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.71 1.03 1.62 1.03 2.73 0 3.92-2.34 4.77-4.57 5.03.36.32.69.94.69 1.9v2.82c0 .27.18.6.69.49A10.04 10.04 0 0 0 22 12.2C22 6.58 17.52 2 12 2z"/>
+            </svg>
+          </div>
+          <span class="tech-name">GitHub</span>
+        </div>
+
+        <!-- Netlify -->
+        <div class="tech-item">
+          <div class="tech-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <path d="M12 2l7 7-7 7-7-7 7-7z" fill="#00c7b7" opacity="0.3"/>
+              <path d="M12 2l9 9-9 9-9-9 9-9z" fill="none" stroke="#00ad9f" stroke-width="2"/>
+              <circle cx="12" cy="12" r="3" fill="#00ad9f"/>
+            </svg>
+          </div>
+          <span class="tech-name">Netlify</span>
+        </div>
+
+        <!-- CPCB EPR -->
+        <div class="tech-item">
+          <div class="tech-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <path d="M12 3v18M3 12h18" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="9" fill="none" stroke="#16a34a" stroke-width="2"/>
+            </svg>
+          </div>
+          <span class="tech-name">CPCB EPR Portal</span>
+        </div>
+
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Draw dynamic pixel-perfect connecting paths between cards
+    function drawConnectorArrows() {
+      const svg = document.getElementById('arrowsLayer');
+      const frame = document.getElementById('slideFrame');
+      const frameRect = frame.getBoundingClientRect();
+
+      // Clear existing paths except defs
+      const defs = svg.querySelector('defs');
+      svg.innerHTML = '';
+      svg.appendChild(defs);
+
+      function getPoint(elementId, side = 'right') {
+        const el = document.getElementById(elementId);
+        if (!el) return { x: 0, y: 0 };
+        const rect = el.getBoundingClientRect();
+        
+        const scaleX = 1920 / frameRect.width;
+        const scaleY = 1080 / frameRect.height;
+
+        let x, y;
+        if (side === 'right') {
+          x = (rect.right - frameRect.left) * scaleX;
+          y = (rect.top + rect.height / 2 - frameRect.top) * scaleY;
+        } else if (side === 'left') {
+          x = (rect.left - frameRect.left) * scaleX;
+          y = (rect.top + rect.height / 2 - frameRect.top) * scaleY;
+        } else if (side === 'bottom') {
+          x = (rect.left + rect.width / 2 - frameRect.left) * scaleX;
+          y = (rect.bottom - frameRect.top) * scaleY;
+        } else if (side === 'top') {
+          x = (rect.left + rect.width / 2 - frameRect.left) * scaleX;
+          y = (rect.top - frameRect.top) * scaleY;
+        }
+        return { x, y };
+      }
+
+      function drawPath(fromId, fromSide, toId, toSide, options = {}) {
+        const p1 = getPoint(fromId, fromSide);
+        const p2 = getPoint(toId, toSide);
+        if (!p1.x || !p2.x) return;
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        let d = '';
+
+        if (fromSide === 'right' && toSide === 'left') {
+          const dx = (p2.x - p1.x) * 0.5;
+          d = `M ${p1.x} ${p1.y} C ${p1.x + dx} ${p1.y}, ${p2.x - dx} ${p2.y}, ${p2.x} ${p2.y}`;
+        } else if (fromSide === 'bottom' && toSide === 'top') {
+          const dy = (p2.y - p1.y) * 0.5;
+          d = `M ${p1.x} ${p1.y} C ${p1.x} ${p1.y + dy}, ${p2.x} ${p2.y - dy}, ${p2.x} ${p2.y}`;
+        }
+
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', options.color || '#1e293b');
+        path.setAttribute('stroke-width', options.width || '2.2');
+        if (options.dashed) {
+          path.setAttribute('stroke-dasharray', '5 4');
+          path.setAttribute('marker-end', 'url(#arrow-dashed)');
+        } else {
+          path.setAttribute('marker-end', 'url(#arrow)');
+        }
+        svg.appendChild(path);
+      }
+
+      function drawVerticalDrop(fromId, toId, options = {}) {
+        const elFrom = document.getElementById(fromId);
+        const elTo = document.getElementById(toId);
+        if (!elFrom || !elTo) return;
+
+        const r1 = elFrom.getBoundingClientRect();
+        const r2 = elTo.getBoundingClientRect();
+        const scaleX = 1920 / frameRect.width;
+        const scaleY = 1080 / frameRect.height;
+
+        let x, y1, y2;
+        // If fromId is narrower than toId (e.g. c6 -> c8), align X to fromId's center
+        if (r1.width < r2.width) {
+          x = (r1.left + r1.width / 2 - frameRect.left) * scaleX;
+        } else {
+          // If fromId is wider than toId (e.g. c8 -> c9), align X to toId's center
+          x = (r2.left + r2.width / 2 - frameRect.left) * scaleX;
+        }
+        y1 = (r1.bottom - frameRect.top) * scaleY;
+        y2 = (r2.top - frameRect.top) * scaleY;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', `M ${x} ${y1} L ${x} ${y2}`);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', options.color || '#ea580c');
+        path.setAttribute('stroke-width', options.width || '2.2');
+        path.setAttribute('marker-end', 'url(#arrow)');
+        svg.appendChild(path);
+      }
+
+      // Intra Pillar 1
+      drawVerticalDrop('node-c1', 'node-c2', { color: '#2563eb', width: '2' });
+
+      // Intra Pillar 2
+      drawVerticalDrop('node-c3', 'node-c4', { color: '#7c3aed', width: '2' });
+      drawVerticalDrop('node-c4', 'node-c5', { color: '#7c3aed', width: '2' });
+
+      // Intra Pillar 3 (Exact vertical drops: 6->8, 7->8, 8->9, 8->9a, 8->9b)
+      drawVerticalDrop('node-c6', 'node-c8', { color: '#ea580c', width: '2' });
+      drawVerticalDrop('node-c7', 'node-c8', { color: '#ea580c', width: '2' });
+      drawVerticalDrop('node-c8', 'node-c9', { color: '#ea580c', width: '2' });
+      drawVerticalDrop('node-c8', 'node-c9a', { color: '#ea580c', width: '2' });
+      drawVerticalDrop('node-c8', 'node-c9b', { color: '#ea580c', width: '2' });
+
+      // Intra Pillar 4
+      drawVerticalDrop('node-c10', 'node-c11', { color: '#16a34a', width: '2' });
+
+      // Inter-Pillar Dataflow Bridges (Clean horizontal connections across pillars)
+      drawPath('node-c1', 'right', 'node-c3', 'left', { color: '#0f172a', width: '2.4' });
+      drawPath('node-c2', 'right', 'node-c5', 'left', { color: '#0f172a', width: '2.4' });
+      drawPath('node-c3', 'right', 'node-c6', 'left', { color: '#0f172a', width: '2.4' });
+      drawPath('node-c5', 'right', 'node-c8', 'left', { color: '#0f172a', width: '2.4' });
+      drawPath('node-c8', 'right', 'node-c10', 'left', { color: '#0f172a', width: '2.4' });
+
+      // Cross-Pillar Feedback Loops
+      drawPath('node-c11', 'left', 'node-c2', 'right', { color: '#64748b', dashed: true, width: '1.8' });
+      drawPath('node-c10', 'left', 'node-c5', 'right', { color: '#10b981', dashed: true, width: '1.8' });
+    }
+
+    window.addEventListener('load', drawConnectorArrows);
+    window.addEventListener('resize', drawConnectorArrows);
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+  </script>
+</body>
+</html>
