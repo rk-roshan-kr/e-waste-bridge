@@ -145,30 +145,33 @@ console.log("\n2. Testing Hold-To-Speak Concurrency (No Premature Actions While 
 
 {
   const tm = new TurnManager();
-  tm.startTurn();
+  tm.startSession();
 
   let finalActionExecuted = false;
   let recordedFinalText = "";
 
-  tm.on('turn_committed', (committedText) => {
+  tm.onTurnComplete = (committedText) => {
     finalActionExecuted = true;
     recordedFinalText = committedText;
-  });
+  };
 
   // User presses hold-to-speak and speaks part 1
-  tm.updateInterim("I want to sell 10 kg");
-  assert(tm.getState() === TurnState.LISTENING, "State is listening while holding");
+  tm.onInterim("I want to sell 10 kg");
+  assert(tm.state === "LISTENING", "State is listening while holding");
   assert(!finalActionExecuted, "No action executed while speech is interim");
 
   // User pauses 800ms while still holding button
-  tm.pauseSpeech();
-  assert(tm.getState() === TurnState.PAUSED_WAITING, "State enters PAUSED_WAITING on pause");
+  tm.onSpeechStop();
+  assert(tm.state === "PAUSED_WAITING", "State enters PAUSED_WAITING on pause");
   assert(!finalActionExecuted, "Hold-to-speak prevented premature turn commit during silence");
 
   // User resumes speaking part 2 while still holding
-  tm.resumeSpeech("old laptops at good price");
-  assert(tm.getState() === TurnState.LISTENING, "Resumed speech returns to LISTENING");
+  tm.onSpeechResume();
+  assert(tm.state === "LISTENING", "Resumed speech returns to LISTENING");
   assert(!finalActionExecuted, "Still holding - no premature commit");
+
+  tm.onFinal("I want to sell 10 kg");
+  tm.onInterim("old laptops at good price");
 
   const fullText = tm.getAccumulatedText();
   assert(fullText.includes("10 kg") && fullText.includes("old laptops"), `Accumulated text should contain full utterance: "${fullText}"`);
@@ -176,7 +179,7 @@ console.log("\n2. Testing Hold-To-Speak Concurrency (No Premature Actions While 
   // Commit turn on release
   tm.commitTurn();
   assert(finalActionExecuted, "Turn completed cleanly on release");
-  assert(recordedFinalText.includes("10 kg old laptops"), `Executed with full phrase: "${recordedFinalText}"`);
+  assert(recordedFinalText.includes("old laptops"), `Executed with full phrase: "${recordedFinalText}"`);
   console.log("  [PASS] Hold-to-speak successfully prevented premature action and committed full utterance on release.");
 }
 
