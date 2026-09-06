@@ -34,7 +34,6 @@ export class TTSProvider {
   }
 
   getAvailableVoices() {
-    if (this.cachedVoices && this.cachedVoices.length > 0) return this.cachedVoices;
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
         const v = window.speechSynthesis.getVoices();
@@ -44,6 +43,7 @@ export class TTSProvider {
         }
       } catch (e) {}
     }
+    if (this.cachedVoices && this.cachedVoices.length > 0) return this.cachedVoices;
     return [];
   }
 
@@ -129,35 +129,20 @@ export class TTSProvider {
       const targetLang = language === 'mr' ? 'mr-IN' : language === 'en' ? 'en-IN' : 'hi-IN';
       utterance.lang = targetLang;
 
-      // Select top-tier natural human-like Indian voice if available in OS / browser
+      // Select sweet, loving female voice (strictly eliminating male robotic voices)
       const voices = this.getAvailableVoices();
-      if (voices && voices.length > 0) {
-        let selected = null;
-        if (language === 'hi') {
-          selected = voices.find(v => (v.name.includes('Swara') || v.name.includes('Madhur')) && v.lang.includes('hi'))
-            || voices.find(v => v.lang.includes('hi') && (v.name.includes('Natural') || v.name.includes('Online')))
-            || voices.find(v => v.lang.includes('hi') && v.name.includes('Google'))
-            || voices.find(v => v.lang.includes('hi'))
-            || voices.find(v => v.lang.startsWith('hi'));
-        } else if (language === 'mr') {
-          selected = voices.find(v => v.name.includes('Aarohi') && v.lang.includes('mr'))
-            || voices.find(v => v.lang.includes('mr') && (v.name.includes('Natural') || v.name.includes('Online')))
-            || voices.find(v => v.lang.includes('mr') && v.name.includes('Google'))
-            || voices.find(v => v.lang.includes('mr'))
-            // Hindi neural voice Swara/Madhur renders Devanagari Marathi with far greater warmth than mechanical English fallback
-            || voices.find(v => (v.name.includes('Swara') || v.name.includes('Madhur')) && v.lang.includes('hi'))
-            || voices.find(v => v.lang.includes('hi'));
-        } else {
-          selected = voices.find(v => (v.name.includes('Neerja') || v.name.includes('Prabhat')) && v.lang.includes('en'))
-            || voices.find(v => (v.lang.includes('en-IN') || v.lang === 'en_IN') && (v.name.includes('Natural') || v.name.includes('Online')))
-            || voices.find(v => v.lang.includes('en-IN') || v.lang === 'en_IN');
-        }
-        if (selected) utterance.voice = selected;
+      const selected = this.selectSweetFemaleVoice(language, voices);
+      if (selected) {
+        utterance.voice = selected;
       }
 
-      // Warm human cadence: 0.90x pacing prevents rushed robotic phoneme clipping
-      utterance.rate = 0.90;
-      utterance.pitch = 1.02;
+      // Sweet, warm, loving feminine prosody:
+      // - pitch: 1.16 gives high melodic warmth and eliminates low robotic drone
+      // - rate: 0.88 gives gentle, unhurried, loving cadence
+      // - volume: 1.0 ensures crisp clarity
+      utterance.pitch = 1.16;
+      utterance.rate = 0.88;
+      utterance.volume = 1.0;
 
       utterance.onend = () => {
         this.isPlayingAudio = false;
@@ -176,6 +161,166 @@ export class TTSProvider {
       this.isPlayingAudio = false;
       if (onEnd) onEnd();
     }
+  }
+
+  isMaleVoice(voice) {
+    if (!voice || !voice.name) return false;
+    const name = voice.name.toLowerCase();
+    return (
+      name.includes('madhur') ||
+      name.includes('hemant') ||
+      name.includes('prabhat') ||
+      name.includes('david') ||
+      name.includes('mark') ||
+      name.includes('george') ||
+      name.includes('ravi') ||
+      name.includes('guy') ||
+      name.includes('male') ||
+      name.includes('man') ||
+      name.includes('stefan') ||
+      name.includes('brian') ||
+      name.includes('richard') ||
+      name.includes('james') ||
+      name.includes('paul') ||
+      name.includes('sean') ||
+      name.includes('raul') ||
+      name.includes('ryan') ||
+      name.includes('christopher') ||
+      name.includes('eric') ||
+      name.includes('deepak') ||
+      name.includes('anand') ||
+      name.includes('ajay') ||
+      name.includes('rajesh') ||
+      name.includes('amit')
+    );
+  }
+
+  isExplicitlyFemale(voice) {
+    if (!voice || !voice.name) return false;
+    const name = voice.name.toLowerCase();
+    return (
+      name.includes('female') ||
+      name.includes('woman') ||
+      name.includes('girl') ||
+      name.includes('swara') ||
+      name.includes('aarohi') ||
+      name.includes('neerja') ||
+      name.includes('kalpana') ||
+      name.includes('lekha') ||
+      name.includes('veena') ||
+      name.includes('sangeeta') ||
+      name.includes('zira') ||
+      name.includes('samantha') ||
+      name.includes('karen') ||
+      name.includes('victoria') ||
+      name.includes('hazel') ||
+      name.includes('susan') ||
+      name.includes('jenny') ||
+      name.includes('aria') ||
+      name.includes('ananya') ||
+      name.includes('aditi') ||
+      name.includes('heera') ||
+      name.includes('priya')
+    );
+  }
+
+  selectSweetFemaleVoice(language, voices) {
+    if (!voices || voices.length === 0) return null;
+
+    if (language === 'hi') {
+      // 1. Top pick: Microsoft Swara Online (Natural) - famous sweet, loving Indian female voice
+      let v = voices.find(voice => voice.name.includes('Swara') && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 2. Google Hindi Female
+      v = voices.find(voice => voice.lang.includes('hi') && voice.name.includes('Google') && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 3. Any Natural/Online Hindi Female
+      v = voices.find(voice => voice.lang.includes('hi') && (voice.name.includes('Natural') || voice.name.includes('Online')) && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 4. Apple Lekha / Kalpana (Female)
+      v = voices.find(voice => voice.lang.includes('hi') && (voice.name.includes('Lekha') || voice.name.includes('Kalpana')) && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 5. Any non-male Hindi voice
+      v = voices.find(voice => voice.lang.includes('hi') && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 6. Fallback: Sweet Indian English female voice (e.g. Neerja / Veena / Sangeeta) rather than harsh male robot
+      v = voices.find(voice => (voice.name.includes('Neerja') || voice.name.includes('Veena') || voice.name.includes('Sangeeta')) && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 7. Any explicitly female voice on system
+      v = voices.find(voice => this.isExplicitlyFemale(voice) && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      return voices.find(voice => !this.isMaleVoice(voice)) || voices[0];
+    }
+
+    if (language === 'mr') {
+      // 1. Top pick: Microsoft Aarohi Online (Natural) - sweet, loving Marathi female voice
+      let v = voices.find(voice => voice.name.includes('Aarohi') && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 2. Google Marathi Female
+      v = voices.find(voice => voice.lang.includes('mr') && voice.name.includes('Google') && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 3. Any Natural/Online Marathi Female
+      v = voices.find(voice => voice.lang.includes('mr') && (voice.name.includes('Natural') || voice.name.includes('Online')) && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 4. Any non-male Marathi voice
+      v = voices.find(voice => voice.lang.includes('mr') && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 5. Devanagari sister fallback: Microsoft Swara (Sweet female Hindi voice reads Devanagari Marathi with far more sweetness than robotic male)
+      v = voices.find(voice => voice.name.includes('Swara') && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 6. Any non-male Hindi voice
+      v = voices.find(voice => voice.lang.includes('hi') && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      // 7. Any explicitly female voice on system
+      v = voices.find(voice => this.isExplicitlyFemale(voice) && !this.isMaleVoice(voice));
+      if (v) return v;
+
+      return voices.find(voice => !this.isMaleVoice(voice)) || voices[0];
+    }
+
+    // English (default / en-IN)
+    // 1. Top pick: Microsoft Neerja Online (Natural) - sweet, warm, loving Indian English female voice
+    let v = voices.find(voice => voice.name.includes('Neerja') && !this.isMaleVoice(voice));
+    if (v) return v;
+
+    // 2. Apple Veena / Sangeeta (Indian English Female)
+    v = voices.find(voice => (voice.name.includes('Veena') || voice.name.includes('Sangeeta')) && !this.isMaleVoice(voice));
+    if (v) return v;
+
+    // 3. Any Natural Indian English Female
+    v = voices.find(voice => (voice.lang.includes('en-IN') || voice.lang.includes('en_IN')) && (voice.name.includes('Natural') || voice.name.includes('Online')) && !this.isMaleVoice(voice));
+    if (v) return v;
+
+    // 4. Google English India Female
+    v = voices.find(voice => (voice.lang.includes('en-IN') || voice.lang.includes('en_IN')) && !this.isMaleVoice(voice));
+    if (v) return v;
+
+    // 5. Any explicitly female English voice (e.g. Zira, Jenny, Aria, Samantha)
+    v = voices.find(voice => voice.lang.includes('en') && this.isExplicitlyFemale(voice) && !this.isMaleVoice(voice));
+    if (v) return v;
+
+    // 6. Any non-male English voice
+    v = voices.find(voice => voice.lang.includes('en') && !this.isMaleVoice(voice));
+    if (v) return v;
+
+    // 7. Any explicitly female voice on system
+    v = voices.find(voice => this.isExplicitlyFemale(voice) && !this.isMaleVoice(voice));
+    if (v) return v;
+
+    return voices.find(voice => !this.isMaleVoice(voice)) || voices[0];
   }
 
   stop() {
