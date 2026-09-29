@@ -711,7 +711,7 @@ The platform models **9 statutory e-waste scrap categories** fully aligned with 
 Problem Statement 2 explicitly commands:
 > *"Allow collectors to photograph, categorize, and create digital lots of collected materials such as CRTs, LCD panels, PCBs, cables, batteries, motors and magnet-bearing assemblies, and mixed plastics, enter approximate weight, and receive an instant value estimate."*
 
-Every single material explicitly named by statutory evaluators is codified with direct 1:1 category parity in [`src/data/materialTaxonomy.js`](file:///d:/SIH%20prototype%20ps2/src/data/materialTaxonomy.js) and [`public/datasets/materials.json`](file:///d:/SIH%20prototype%20ps2/public/datasets/materials.json):
+Every single material explicitly named by statutory evaluators is codified with direct 1:1 category parity in [`src/data/materialTaxonomy.js`](./src/data/materialTaxonomy.js) and [`public/datasets/materials.json`](./public/datasets/materials.json):
 
 | PS2 Mandated Scrap Stream | System Material ID | Statutory Code | Base Rate | Critical Mineral / Hazardous Protection Directive |
 | :--- | :---: | :---: | :---: | :--- |
@@ -980,7 +980,7 @@ Over 70% of informal scrap collectors in urban India utilize entry-level smartph
 To guarantee crash-free 60fps operation on these devices without thermal throttling or out-of-memory (OOM) kernel kills, E-Waste Bridge enforces six strict hardware optimization invariants:
 
 1. **Modular Code-Splitting & Rolldown Chunking**:
-   Rather than emitting a monolithic 1MB+ JavaScript bundle that causes V8 parser thread lockups, [`vite.config.js`](file:///d:/SIH%20prototype%20ps2/vite.config.js) slices the application into specialized, independently cached vendor chunks:
+   Rather than emitting a monolithic 1MB+ JavaScript bundle that causes V8 parser thread lockups, [`vite.config.js`](./vite.config.js) slices the application into specialized, independently cached vendor chunks:
 
    | Bundle Chunk | Target Dependencies | Minified Size | Gzipped Size | Parsing Overhead |
    | :--- | :--- | :---: | :---: | :---: |
@@ -1049,7 +1049,7 @@ $$Z = \frac{\text{quotedPricePerKg} - \mu}{\sigma}$$
 
 ## 13. Data Schemas, 9-Table Relational ANSI SQL Architecture & Open Data Exporters
 
-The persistence layer conforms to strict relational ANSI SQL standards, codified in [`src/database/schema.sql`](file:///d:/SIH%20prototype%20ps2/src/database/schema.sql). The platform strictly rejects unstructured NoSQL document dumps in favor of a 3rd-Normal-Form (3NF) relational topology ensuring ACID transactional guarantees, foreign key cascade integrity, and deterministic CPCB audit federation.
+The persistence layer conforms to strict relational ANSI SQL standards, codified in [`src/database/schema.sql`](./src/database/schema.sql). The platform strictly rejects unstructured NoSQL document dumps in favor of a 3rd-Normal-Form (3NF) relational topology ensuring ACID transactional guarantees, foreign key cascade integrity, and deterministic CPCB audit federation.
 
 ```mermaid
 erDiagram
@@ -1186,7 +1186,7 @@ The platform data layer comprises exactly nine interconnected relational tables:
 | **9** | `anomaly_logs` | `anomaly_id` | `lot_id` | Automated fraud flags (price lowballing, scale variance, unauthorized yards, geofence breaches). |
 
 ### 13.2 ANSI SQL Data Definition Language (DDL) Specifications
-Directly codified in [`src/database/schema.sql`](file:///d:/SIH%20prototype%20ps2/src/database/schema.sql):
+Directly codified in [`src/database/schema.sql`](./src/database/schema.sql):
 
 ```sql
 -- 1. Statutory Material Master
@@ -1333,7 +1333,7 @@ In compliance with CPCB market surveillance and fair collector remuneration mand
    - Provides training data for hedonic regression valuation, preventing predatory middleman collusion.
 
 ### 13.4 AI/ML Training Dataset Provenance, Quality Audit & Known Limitations
-To satisfy statutory accountability and machine learning transparency requirements, the provenance, quality assurance metrics, and operational limitations of all model training assets are explicitly codified in [`public/datasets/ai_ml_dataset_manifest.json`](file:///d:/SIH%20prototype%20ps2/public/datasets/ai_ml_dataset_manifest.json):
+To satisfy statutory accountability and machine learning transparency requirements, the provenance, quality assurance metrics, and operational limitations of all model training assets are explicitly codified in [`public/datasets/ai_ml_dataset_manifest.json`](./public/datasets/ai_ml_dataset_manifest.json):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -1395,7 +1395,7 @@ To satisfy statutory accountability and machine learning transparency requiremen
   - During severe supply disruptions (e.g., sudden port customs import freezes), physical yard prices may diverge from the published CPCB benchmark by up to $72\text{ hours}$ until regional market surveys update.
 
 ### 13.5 Deterministic Export Pipelines
-The platform provides instant, uncompromised data portability via [`src/database/dbService.js`](file:///d:/SIH%20prototype%20ps2/src/database/dbService.js):
+The platform provides instant, uncompromised data portability via [`src/database/dbService.js`](./src/database/dbService.js):
 - **ANSI SQL Dump (`seed_dump.sql`)**: Generates idempotent SQL `INSERT INTO ... ON CONFLICT DO NOTHING;` scripts ready for instant import into PostgreSQL, MySQL, CockroachDB, or SQLite.
 - **RFC-4180 CSV Tables**: Streams all 9 relational tables as clean, quoted CSV files located in `/public/datasets/` for direct consumption by CPCB centralized data warehouses and academic researchers.
 
